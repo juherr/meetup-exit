@@ -4,7 +4,7 @@ Export Meetup Pro network data before leaving the platform.
 
 Fetches groups, events, RSVPs, and registration answers via the Meetup GraphQL API. Stores raw JSONL for reproducibility and generates CSV/Markdown/HTML archives.
 
-> **Status**: MVP in progress — authentication and network probing are functional. Export commands are not yet implemented.
+> **Status**: MVP in progress — export pipeline is functional (groups, events, RSVPs, registration answers, CSV/Markdown archive, privacy modes). Remaining: `convert`, `doctor`, resume support, error records.
 
 ## Prerequisites
 
@@ -60,13 +60,16 @@ All options can also be passed as CLI flags — run `bun src/cli/main.ts --help`
 
 ## Commands
 
-| Command                             | Description                           |
-| ----------------------------------- | ------------------------------------- |
-| `verify-auth`                       | Test authentication, display identity |
-| `probe-network --network <urlname>` | Confirm Pro network access            |
-| `introspect --out <file>`           | Dump GraphQL schema to JSON           |
+| Command                             | Description                                               |
+| ----------------------------------- | --------------------------------------------------------- |
+| `verify-auth`                       | Test authentication, display identity                     |
+| `probe-network --network <urlname>` | Confirm Pro network access                                |
+| `introspect --out <file>`           | Dump GraphQL schema to JSON                               |
+| `export --network <urlname> --out <dir> [flags]` | Export all network data to an archive      |
 
-Exit codes: `0` success, `1` general error, `2` auth error, `3` network access denied, `5` invalid config.
+Key `export` flags: `--include-groups`, `--include-events`, `--include-rsvps`, `--include-registration-answers`, `--include-markdown`, `--privacy-mode <mode>`, `--dry-run`.
+
+Exit codes: `0` success, `1` general error, `2` auth error, `3` network access denied, `4` partial export with errors, `5` invalid config.
 
 ## Development
 
@@ -87,6 +90,9 @@ bun run codegen              # Generate typed GraphQL SDK
 src/
   auth/       MeetupAuthProvider interface + implementations
   meetup/     GraphQL client + typed query functions
+  export/     Export orchestration (include/exclude flags, metrics)
+  archive/    File writers: JSONL, CSV, Markdown, manifest, checksums
+  privacy/    Email filtering, pseudonymization, GDPR report
   cli/        Commands, shared options, logging
 specs/        Functional and technical specifications (French)
 test/         Unit tests
@@ -110,27 +116,26 @@ Full specs in `specs/README.md`.
 - `introspect` command
 - `listGroups` (paginated, cursor loop detection)
 
-### Phase 3 — Export (in progress)
+### Phase 3 — Export pipeline ✅
 
-- GraphQL codegen (typed SDK from introspection schema)
 - `export` command — groups → events → event details → RSVPs → registration answers
-- Raw JSONL archive writer
+- Raw JSONL archive writer (append, UTF-8)
 - CSV writers (groups, events, RSVPs, attendees, registration answers)
-- Resume support (`--resume`, local index)
 
-### Phase 4 — Archive + formats
+### Phase 4 — Archive formats ✅
 
 - Markdown event pages (YAML frontmatter, slugification)
 - `manifest.json` + `sha256.txt` checksums
-- `convert` command (re-derive CSV/Markdown from existing raw archive)
 
-### Phase 5 — Privacy + GDPR
+### Phase 5 — Privacy + GDPR ✅
 
 - `no-email`, `pseudonymized`, `public-archive` modes
 - GDPR report (`reports/gdpr-review.md`)
-
-### Phase 6 — Hardening
-
-- `doctor` command (env check, key permissions, output writability)
-- Error records (`raw/errors.jsonl`, `reports/errors.md`)
 - `OAuthRefreshTokenAuthProvider` (single-use refresh token persistence)
+
+### Phase 6 — Hardening (in progress)
+
+- `convert` command (re-derive CSV/Markdown from existing raw archive)
+- Resume support (`--resume`, local index to skip already-exported entities)
+- Error records (`raw/errors.jsonl`, `reports/errors.md`)
+- `doctor` command (env check, key permissions, output writability)
