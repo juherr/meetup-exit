@@ -1,0 +1,33 @@
+{
+  "name": "meetup-exit",
+  "version": "0.1.0",
+  "bin": {
+    "meetup-exit": "./dist/cli/main.js"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "bun src/cli/main.ts",
+    "build": "vp pack",
+    "test": "vp test",
+    "check": "vp check",
+    "codegen": "graphql-codegen --config codegen.yml"
+  },
+  "dependencies": {
+    "bottleneck": "^2.19.5",
+    "commander": "^14.0.0",
+    "csv-stringify": "^6.5.2",
+    "graphql": "^16.11.0",
+    "graphql-request": "^7.1.2",
+    "jose": "^6.0.10",
+    "zod": "^3.25.23"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@graphql-codegen/typescript-operations": "^4.5.1",
+    "@types/node": "^22.15.19",
+    "typescript": "^5.9.3",
+    "vite-plus": "latest"
+  }
+}
