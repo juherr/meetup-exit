@@ -21,7 +21,10 @@ The core export engine (auth, GraphQL client, export orchestration, archive writ
   2. The convert output matches the format produced by a fresh `export` run on the same data
   3. Privacy mode flags (`--privacy-mode`) work identically in convert as in export
   4. Running convert on a directory with no raw JSONL files exits with a clear error message
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Convert engine + CLI command (runConvert, convertCommand, main.ts registration)
 
 ### Phase 2: Export Resilience
 **Goal**: The export command captures photo metadata, can resume a partial run without duplicates, and persists entity errors for audit after the export completes
@@ -49,6 +52,6 @@ The core export engine (auth, GraphQL client, export orchestration, archive writ
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Convert Command | 0/? | Not started | - |
+| 1. Convert Command | 0/1 | Not started | - |
 | 2. Export Resilience | 0/? | Not started | - |
 | 3. Ops and Docs | 0/? | Not started | - |
