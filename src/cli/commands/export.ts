@@ -99,7 +99,9 @@ export const exportCommand = addAuthOptions(
           eventStatuses,
           pageSize,
           privacyMode,
-          pseudonymizationSalt: opts.pseudonymizationSalt,
+          ...(opts.pseudonymizationSalt !== undefined
+            ? { pseudonymizationSalt: opts.pseudonymizationSalt }
+            : {}),
           dryRun: opts.dryRun === true,
           endpoint: opts.endpoint,
           authMode: opts.auth,

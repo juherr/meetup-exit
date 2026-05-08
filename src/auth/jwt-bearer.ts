@@ -1,4 +1,3 @@
-import type { KeyLike } from "jose";
 import { SignJWT, importPKCS8 } from "jose";
 import type { MeetupAuthProvider } from "./provider.ts";
 import { requestOAuthToken } from "./utils.ts";
@@ -15,7 +14,7 @@ export type OAuthJwtBearerAuthProviderOptions = {
 export class OAuthJwtBearerAuthProvider implements MeetupAuthProvider {
   private cachedToken: { accessToken: string; expiresAt: number } | null = null;
   private inflightRequest: Promise<string> | null = null;
-  private cachedPrivateKey: Promise<KeyLike> | null = null;
+  private cachedPrivateKey: Promise<CryptoKey> | null = null;
 
   constructor(private readonly options: OAuthJwtBearerAuthProviderOptions) {}
 
@@ -51,7 +50,7 @@ export class OAuthJwtBearerAuthProvider implements MeetupAuthProvider {
     return tokenResponse.access_token;
   }
 
-  private getPrivateKey(): Promise<KeyLike> {
+  private getPrivateKey(): Promise<CryptoKey> {
     if (this.cachedPrivateKey === null) {
       this.cachedPrivateKey = importPKCS8(this.options.privateKeyPem, "RS256");
     }

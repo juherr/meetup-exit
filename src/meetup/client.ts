@@ -112,7 +112,10 @@ export class MeetupGraphqlClient {
           headers: { authorization: `Bearer ${accessToken}` },
         });
 
-        return await client.request<TResponse, TVariables>(document, variables);
+        // graphql-request's VariablesAndRequestHeadersArgs conditional type is not
+        // compatible with a generic TVariables under exactOptionalPropertyTypes.
+        type SimpleRequest = (doc: RequestDocument, vars?: TVariables) => Promise<TResponse>;
+        return await (client.request as SimpleRequest)(document, variables);
       } catch (error) {
         const resetAt = extractMeetupRateLimitResetAt(error);
 
