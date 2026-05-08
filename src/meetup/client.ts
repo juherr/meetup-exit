@@ -1,6 +1,7 @@
 import Bottleneck from "bottleneck";
 import { GraphQLClient, type RequestDocument, type Variables } from "graphql-request";
 import type { MeetupAuthProvider } from "../auth/provider.ts";
+import { AuthenticationError } from "../errors/index.ts";
 
 export type MeetupRateLimitConfig = {
   reservoir: number;
@@ -52,6 +53,14 @@ export function extractMeetupRateLimitResetAt(error: unknown): Date | null {
 
 function sleep(delayMs: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
+export function throwMeetupRequestError(error: unknown): never {
+  const status = (error as { response?: { status?: number } }).response?.status;
+  if (status === 401 || status === 403) {
+    throw new AuthenticationError("Invalid or expired access token");
+  }
+  throw error;
 }
 
 export class MeetupGraphqlClient {

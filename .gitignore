@@ -25,6 +25,7 @@ exports/
 secrets/
 schema/introspection.json
 schema/schema.graphql
+src/meetup/generated/
 
 # caches
 .eslintcache

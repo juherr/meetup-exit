@@ -1,0 +1,11 @@
+schema: schema/introspection.json
+documents: "src/meetup/queries/**/*.graphql"
+generates:
+  src/meetup/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      rawRequest: false
+      skipTypename: true

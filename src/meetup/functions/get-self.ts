@@ -1,7 +1,6 @@
 import { gql } from "graphql-request";
 import type { MeetupGraphqlClient } from "../client.ts";
-import { MeetupQueryCost } from "../client.ts";
-import { AuthenticationError } from "../../errors/index.ts";
+import { MeetupQueryCost, throwMeetupRequestError } from "../client.ts";
 
 const GET_SELF = gql`
   query GetSelf {
@@ -26,10 +25,6 @@ export async function getSelf(client: MeetupGraphqlClient): Promise<{ id: string
     });
     return data.self;
   } catch (error) {
-    const status = (error as { response?: { status?: number } }).response?.status;
-    if (status === 401 || status === 403) {
-      throw new AuthenticationError("Invalid or expired access token");
-    }
-    throw error;
+    throwMeetupRequestError(error);
   }
 }
