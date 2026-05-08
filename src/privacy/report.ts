@@ -47,7 +47,7 @@ export async function writeGdprReport(outDir: string, input: GdprReportInput): P
   lines.push("## Public-safe files", "");
   const publicFiles: string[] = [];
   if (includes.events && isPublicArchive) {
-    lines.push(`- \`csv/events.csv\` — generated with \`${privacyMode}\` mode.`);
+    publicFiles.push(`- \`csv/events.csv\` — generated with \`${privacyMode}\` mode.`);
   }
   if (includes.markdown && isPublicArchive) {
     publicFiles.push(`- \`markdown/events/*.md\` — generated with \`${privacyMode}\` mode.`);

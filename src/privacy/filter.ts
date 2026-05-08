@@ -1,6 +1,12 @@
 import { stableHash } from "./hash.ts";
 import type { PrivacyMode } from "./modes.ts";
 
+export const PSEUDONYM_PREFIXES = {
+  member: "member_",
+  email: "email_",
+  rsvp: "rsvp_",
+} as const;
+
 export type RsvpPrivacyTarget = {
   eventId: string;
   rsvpId: string;
@@ -29,10 +35,12 @@ export function applyRsvpPrivacy(
   if (privacyMode === "pseudonymized" && salt) {
     return {
       ...row,
-      rsvpId: `rsvp_${stableHash(row.rsvpId, salt)}`,
-      memberId: `member_${stableHash(row.memberId, salt)}`,
-      memberName: `member_${stableHash(row.memberName, salt)}`,
-      memberEmail: row.memberEmail ? `email_${stableHash(row.memberEmail, salt)}` : null,
+      rsvpId: `${PSEUDONYM_PREFIXES.rsvp}${stableHash(row.rsvpId, salt)}`,
+      memberId: `${PSEUDONYM_PREFIXES.member}${stableHash(row.memberId, salt)}`,
+      memberName: `${PSEUDONYM_PREFIXES.member}${stableHash(row.memberName, salt)}`,
+      memberEmail: row.memberEmail
+        ? `${PSEUDONYM_PREFIXES.email}${stableHash(row.memberEmail, salt)}`
+        : null,
     };
   }
   return row;
@@ -49,9 +57,11 @@ export function applyAttendeePrivacy(
   if (privacyMode === "pseudonymized" && salt) {
     return {
       ...row,
-      memberEmail: row.memberEmail ? `email_${stableHash(row.memberEmail, salt)}` : null,
-      memberName: `member_${stableHash(row.memberName, salt)}`,
-      rsvpId: `rsvp_${stableHash(row.rsvpId, salt)}`,
+      memberEmail: row.memberEmail
+        ? `${PSEUDONYM_PREFIXES.email}${stableHash(row.memberEmail, salt)}`
+        : null,
+      memberName: `${PSEUDONYM_PREFIXES.member}${stableHash(row.memberName, salt)}`,
+      rsvpId: `${PSEUDONYM_PREFIXES.rsvp}${stableHash(row.rsvpId, salt)}`,
     };
   }
   return row;

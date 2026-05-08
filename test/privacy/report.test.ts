@@ -88,4 +88,19 @@ describe("writeGdprReport", () => {
     expect(content).toContain("raw/registration-answers.jsonl");
     expect(content).toContain("csv/registration-answers.csv");
   });
+
+  it("lists events.csv as public-safe when public-archive without markdown", async () => {
+    const dir = tmpDir();
+    await mkdir(dir, { recursive: true });
+
+    await writeGdprReport(dir, {
+      ...baseInput,
+      privacyMode: "public-archive",
+      includes: { ...baseInput.includes, markdown: false },
+    });
+
+    const content = await readFile(join(dir, "reports/gdpr-review.md"), "utf-8");
+    expect(content).toContain("csv/events.csv");
+    expect(content).not.toContain("_Validate privacy mode before publishing any file._");
+  });
 });

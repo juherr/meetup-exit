@@ -34,6 +34,7 @@ import {
   applyAttendeePrivacy,
   stableHash,
   writeGdprReport,
+  PSEUDONYM_PREFIXES,
 } from "../privacy/index.ts";
 import type { PrivacyMode } from "../privacy/index.ts";
 
@@ -198,12 +199,13 @@ export async function runExport(
           if (options.includeMarkdown && !options.dryRun) {
             let eventForMarkdown: EventDetails = details;
             if (options.privacyMode === "pseudonymized" && effectiveSalt) {
+              const salt = effectiveSalt;
               eventForMarkdown = {
                 ...details,
                 eventHosts: details.eventHosts.map((h) => ({
                   ...h,
-                  memberId: `member_${stableHash(h.memberId, effectiveSalt!)}`,
-                  name: `member_${stableHash(h.name, effectiveSalt!)}`,
+                  memberId: `${PSEUDONYM_PREFIXES.member}${stableHash(h.memberId, salt)}`,
+                  name: `${PSEUDONYM_PREFIXES.member}${stableHash(h.name, salt)}`,
                 })),
               };
             }
@@ -337,41 +339,38 @@ export async function runExport(
       const schemaIntrospectionSha256 = await fileChecksum(
         join(options.outDir, "schema/introspection.json"),
       );
-      await writeManifest(options.outDir, {
-        tool: "meetup-exit",
-        version: options.toolVersion,
-        startedAt,
-        finishedAt,
-        endpoint: options.endpoint,
-        networkUrlname: options.network,
-        authMode: options.authMode,
-        privacyMode: options.privacyMode,
-        includes: {
-          groups: options.includeGroups,
-          events: options.includeEvents,
-          rsvps: options.includeRsvps,
-          registrationAnswers: options.includeRegistrationAnswers,
-          markdown: options.includeMarkdown,
-        },
-        counts,
-        metrics: {
-          graphqlRequests: 0,
-          rateLimitedRetries: 0,
-          durationSeconds,
-        },
-        ...(schemaIntrospectionSha256 ? { schemaIntrospectionSha256 } : {}),
-      });
-      await writeGdprReport(options.outDir, {
-        privacyMode: options.privacyMode,
-        includes: {
-          groups: options.includeGroups,
-          events: options.includeEvents,
-          rsvps: options.includeRsvps,
-          registrationAnswers: options.includeRegistrationAnswers,
-          markdown: options.includeMarkdown,
-        },
-        counts,
-      });
+      const includes = {
+        groups: options.includeGroups,
+        events: options.includeEvents,
+        rsvps: options.includeRsvps,
+        registrationAnswers: options.includeRegistrationAnswers,
+        markdown: options.includeMarkdown,
+      };
+      await Promise.all([
+        writeManifest(options.outDir, {
+          tool: "meetup-exit",
+          version: options.toolVersion,
+          startedAt,
+          finishedAt,
+          endpoint: options.endpoint,
+          networkUrlname: options.network,
+          authMode: options.authMode,
+          privacyMode: options.privacyMode,
+          includes,
+          counts,
+          metrics: {
+            graphqlRequests: 0,
+            rateLimitedRetries: 0,
+            durationSeconds,
+          },
+          ...(schemaIntrospectionSha256 ? { schemaIntrospectionSha256 } : {}),
+        }),
+        writeGdprReport(options.outDir, {
+          privacyMode: options.privacyMode,
+          includes,
+          counts,
+        }),
+      ]);
     } else {
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
