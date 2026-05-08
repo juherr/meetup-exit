@@ -19,6 +19,7 @@ type ExportOpts = AuthOpts & {
   allEventStatuses?: true;
   pageSize: string;
   privacyMode: string;
+  pseudonymizationSalt?: string;
   dryRun?: true;
   endpoint: string;
   jsonLogs?: true;
@@ -51,6 +52,11 @@ export const exportCommand = addAuthOptions(
     "--privacy-mode <mode>",
     `privacy mode (${PRIVACY_MODES.join(", ")})`,
     process.env["MEETUP_PRIVACY_MODE"] ?? "full",
+  )
+  .option(
+    "--pseudonymization-salt <salt>",
+    "salt for stable pseudonymization hashes (required for --privacy-mode pseudonymized)",
+    process.env["MEETUP_PSEUDONYMIZATION_SALT"],
   )
   .option("--dry-run", "fetch data without writing any files")
   .option("--endpoint <url>", "GraphQL endpoint", process.env["MEETUP_ENDPOINT"] ?? MEETUP_ENDPOINT)
@@ -93,6 +99,7 @@ export const exportCommand = addAuthOptions(
           eventStatuses,
           pageSize,
           privacyMode,
+          pseudonymizationSalt: opts.pseudonymizationSalt,
           dryRun: opts.dryRun === true,
           endpoint: opts.endpoint,
           authMode: opts.auth,

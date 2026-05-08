@@ -1,5 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { randomBytes } from "node:crypto";
 import { AuthenticationError, AuthorizationError } from "../errors/index.ts";
 import type { Logger } from "../logging/index.ts";
 import type { MeetupGraphqlClient } from "../meetup/client.ts";
@@ -27,9 +28,17 @@ import type {
 import { writeEventMarkdown } from "../archive/markdown/index.ts";
 import { writeManifest } from "../archive/manifest.ts";
 import { writeChecksums, fileChecksum } from "../archive/checksums.ts";
+import {
+  PRIVACY_MODES,
+  applyRsvpPrivacy,
+  applyAttendeePrivacy,
+  stableHash,
+  writeGdprReport,
+} from "../privacy/index.ts";
+import type { PrivacyMode } from "../privacy/index.ts";
 
-export const PRIVACY_MODES = ["full", "no-email", "pseudonymized", "public-archive"] as const;
-export type PrivacyMode = (typeof PRIVACY_MODES)[number];
+export { PRIVACY_MODES };
+export type { PrivacyMode };
 
 export type ExportOptions = {
   network: string;
@@ -42,6 +51,7 @@ export type ExportOptions = {
   eventStatuses: string[];
   pageSize: number;
   privacyMode: PrivacyMode;
+  pseudonymizationSalt?: string;
   dryRun: boolean;
   endpoint: string;
   authMode: string;
@@ -63,6 +73,15 @@ export async function runExport(
 ): Promise<ExportCounts> {
   const startedAt = new Date().toISOString();
   const startMs = Date.now();
+
+  let effectiveSalt = options.pseudonymizationSalt;
+  if (options.privacyMode === "pseudonymized" && !effectiveSalt) {
+    effectiveSalt = randomBytes(32).toString("hex");
+    logger.warn(
+      `no --pseudonymization-salt provided; using random salt for this run: ${effectiveSalt}`,
+    );
+    logger.warn("pass --pseudonymization-salt to produce consistent pseudonyms across exports");
+  }
 
   const counts: ExportCounts = {
     groups: 0,
@@ -177,7 +196,18 @@ export async function runExport(
             featuredPhotoBaseUrl: details.featuredEventPhoto?.baseUrl ?? "",
           });
           if (options.includeMarkdown && !options.dryRun) {
-            await writeEventMarkdown(markdownEventsDir, details, options.privacyMode);
+            let eventForMarkdown: EventDetails = details;
+            if (options.privacyMode === "pseudonymized" && effectiveSalt) {
+              eventForMarkdown = {
+                ...details,
+                eventHosts: details.eventHosts.map((h) => ({
+                  ...h,
+                  memberId: `member_${stableHash(h.memberId, effectiveSalt!)}`,
+                  name: `member_${stableHash(h.name, effectiveSalt!)}`,
+                })),
+              };
+            }
+            await writeEventMarkdown(markdownEventsDir, eventForMarkdown, options.privacyMode);
           }
         } catch (error) {
           if (error instanceof AuthenticationError || error instanceof AuthorizationError)
@@ -189,7 +219,7 @@ export async function runExport(
         }
       }
 
-      if (options.includeRsvps) {
+      if (options.includeRsvps && options.privacyMode !== "public-archive") {
         for (const eventId of eventDetailsMap.keys()) {
           try {
             const rsvps = await listEventRsvps(client, eventId, { pageSize: options.pageSize });
@@ -205,21 +235,33 @@ export async function runExport(
                   raw: rsvp,
                 });
               }
-              rsvpCsvRows.push({
-                eventId,
-                rsvpId: rsvp.id,
-                memberId: rsvp.memberId,
-                memberName: rsvp.memberName,
-                memberEmail: rsvp.memberEmail,
-              });
-              attendeeCsvRows.push({
-                memberEmail: rsvp.memberEmail,
-                memberName: rsvp.memberName,
-                eventId,
-                eventTitle: details.title,
-                eventDateTime: details.dateTime,
-                rsvpId: rsvp.id,
-              });
+              rsvpCsvRows.push(
+                applyRsvpPrivacy(
+                  {
+                    eventId,
+                    rsvpId: rsvp.id,
+                    memberId: rsvp.memberId,
+                    memberName: rsvp.memberName,
+                    memberEmail: rsvp.memberEmail,
+                  },
+                  options.privacyMode,
+                  effectiveSalt,
+                ),
+              );
+              attendeeCsvRows.push(
+                applyAttendeePrivacy(
+                  {
+                    memberEmail: rsvp.memberEmail,
+                    memberName: rsvp.memberName,
+                    eventId,
+                    eventTitle: details.title,
+                    eventDateTime: details.dateTime,
+                    rsvpId: rsvp.id,
+                  },
+                  options.privacyMode,
+                  effectiveSalt,
+                ),
+              );
               counts.rsvps++;
             }
           } catch (error) {
@@ -234,7 +276,7 @@ export async function runExport(
         logger.info(`fetched ${counts.rsvps} RSVPs`);
       }
 
-      if (options.includeRegistrationAnswers) {
+      if (options.includeRegistrationAnswers && options.privacyMode !== "public-archive") {
         for (const eventId of eventDetailsMap.keys()) {
           try {
             const answers = await listEventRegistrationAnswers(client, options.network, eventId, {
@@ -319,6 +361,17 @@ export async function runExport(
         },
         ...(schemaIntrospectionSha256 ? { schemaIntrospectionSha256 } : {}),
       });
+      await writeGdprReport(options.outDir, {
+        privacyMode: options.privacyMode,
+        includes: {
+          groups: options.includeGroups,
+          events: options.includeEvents,
+          rsvps: options.includeRsvps,
+          registrationAnswers: options.includeRegistrationAnswers,
+          markdown: options.includeMarkdown,
+        },
+        counts,
+      });
     } else {
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
@@ -328,7 +381,9 @@ export async function runExport(
         logger.info(`[dry-run] would write ${answerCsvRows.length} registration answer rows`);
       if (options.includeMarkdown)
         logger.info(`[dry-run] would write ${eventCsvRows.length} event markdown files`);
-      logger.info("[dry-run] would write manifest.json and checksums/sha256.txt");
+      logger.info(
+        "[dry-run] would write manifest.json, checksums/sha256.txt, and reports/gdpr-review.md",
+      );
     }
   } finally {
     const closeResults = await Promise.allSettled([
