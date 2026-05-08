@@ -94,6 +94,9 @@ export const exportCommand = addAuthOptions(
           pageSize,
           privacyMode,
           dryRun: opts.dryRun === true,
+          endpoint: opts.endpoint,
+          authMode: opts.auth,
+          toolVersion: "0.1.0",
         },
         logger,
       );

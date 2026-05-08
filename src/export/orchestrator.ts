@@ -25,6 +25,8 @@ import type {
   RegistrationAnswerCsvRow,
 } from "../archive/csv/index.ts";
 import { writeEventMarkdown } from "../archive/markdown/index.ts";
+import { writeManifest } from "../archive/manifest.ts";
+import { writeChecksums, fileChecksum } from "../archive/checksums.ts";
 
 export const PRIVACY_MODES = ["full", "no-email", "pseudonymized", "public-archive"] as const;
 export type PrivacyMode = (typeof PRIVACY_MODES)[number];
@@ -41,6 +43,9 @@ export type ExportOptions = {
   pageSize: number;
   privacyMode: PrivacyMode;
   dryRun: boolean;
+  endpoint: string;
+  authMode: string;
+  toolVersion: string;
 };
 
 export type ExportCounts = {
@@ -56,6 +61,9 @@ export async function runExport(
   options: ExportOptions,
   logger: Logger,
 ): Promise<ExportCounts> {
+  const startedAt = new Date().toISOString();
+  const startMs = Date.now();
+
   const counts: ExportCounts = {
     groups: 0,
     events: 0,
@@ -279,6 +287,38 @@ export async function runExport(
           join(options.outDir, "csv/registration-answers.csv"),
           answerCsvRows,
         );
+
+      await writeChecksums(options.outDir);
+
+      const finishedAt = new Date().toISOString();
+      const durationSeconds = Math.round((Date.now() - startMs) / 1000);
+      const schemaIntrospectionSha256 = await fileChecksum(
+        join(options.outDir, "schema/introspection.json"),
+      );
+      await writeManifest(options.outDir, {
+        tool: "meetup-exit",
+        version: options.toolVersion,
+        startedAt,
+        finishedAt,
+        endpoint: options.endpoint,
+        networkUrlname: options.network,
+        authMode: options.authMode,
+        privacyMode: options.privacyMode,
+        includes: {
+          groups: options.includeGroups,
+          events: options.includeEvents,
+          rsvps: options.includeRsvps,
+          registrationAnswers: options.includeRegistrationAnswers,
+          markdown: options.includeMarkdown,
+        },
+        counts,
+        metrics: {
+          graphqlRequests: 0,
+          rateLimitedRetries: 0,
+          durationSeconds,
+        },
+        ...(schemaIntrospectionSha256 ? { schemaIntrospectionSha256 } : {}),
+      });
     } else {
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
@@ -287,7 +327,8 @@ export async function runExport(
       if (options.includeRegistrationAnswers)
         logger.info(`[dry-run] would write ${answerCsvRows.length} registration answer rows`);
       if (options.includeMarkdown)
-        logger.info(`[dry-run] would write ${eventDetailsMap.size} event markdown files`);
+        logger.info(`[dry-run] would write ${eventCsvRows.length} event markdown files`);
+      logger.info("[dry-run] would write manifest.json and checksums/sha256.txt");
     }
   } finally {
     const closeResults = await Promise.allSettled([
