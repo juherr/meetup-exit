@@ -29,7 +29,7 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 - [ ] Error records — `raw/errors.jsonl` + `reports/errors.md`, export continues on entity failure (Epic 9.2)
 - [ ] `doctor` command — check Bun version, env vars, key permissions, output writability
 - [ ] README — setup OAuth Client, JWT bearer flow, full export examples, privacy modes
-- [ ] `.env.example` — all MEETUP_* variables with English comments
+- [ ] `.env.example` — all MEETUP\_\* variables with English comments
 - [ ] Security guide — tokens, private key, full exports, gitignore
 
 ### Out of Scope
@@ -58,12 +58,13 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Six strict modules with no cross-boundary leakage | Testability and separation of concerns | ✓ Good — already validated in codebase |
-| Bottleneck reservoir at 450/min (not 500) | Safety margin below Meetup's 500-point limit | — Pending validation |
-| Raw JSONL as source of truth | Allows re-processing without re-fetching API (convert command depends on this) | ✓ Good |
-| Refresh tokens are single-use — persist after every refresh | Meetup API behavior | ✓ Good |
+| Decision                                                    | Rationale                                                                      | Outcome                                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
+| Six strict modules with no cross-boundary leakage           | Testability and separation of concerns                                         | ✓ Good — already validated in codebase |
+| Bottleneck reservoir at 450/min (not 500)                   | Safety margin below Meetup's 500-point limit                                   | — Pending validation                   |
+| Raw JSONL as source of truth                                | Allows re-processing without re-fetching API (convert command depends on this) | ✓ Good                                 |
+| Refresh tokens are single-use — persist after every refresh | Meetup API behavior                                                            | ✓ Good                                 |
 
 ---
-*Last updated: 2026-05-08 after brownfield initialization*
+
+_Last updated: 2026-05-08 after brownfield initialization_

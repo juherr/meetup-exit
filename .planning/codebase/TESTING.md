@@ -5,14 +5,17 @@
 ## Test Framework
 
 **Runner:**
+
 - `vitest` (via `vite-plus`)
 - Config: Implicit (no standalone vitest.config file; configured through `vite-plus`)
 - Configured via `vite.config.ts` which delegates to `vite-plus`
 
 **Assertion Library:**
+
 - `vitest` built-in assertions (expect API)
 
 **Run Commands:**
+
 ```bash
 vp test                                    # Run all tests
 vp test test/auth/access-token.test.ts     # Run single test file
@@ -24,14 +27,17 @@ vp test --coverage                          # Coverage report (if configured)
 ## Test File Organization
 
 **Location:**
+
 - Co-located with source in parallel `test/` directory structure
 - Mirrors `src/` layout exactly: `test/auth/`, `test/archive/`, `test/meetup/`, `test/privacy/`
 
 **Naming:**
+
 - Pattern: `[source-file-name].test.ts`
 - Examples: `access-token.test.ts` (tests `src/auth/access-token.ts`), `jsonl-writer.test.ts` (tests `src/archive/jsonl-writer.ts`)
 
 **Structure:**
+
 ```
 test/
 ├── auth/
@@ -57,6 +63,7 @@ test/
 ## Test Structure
 
 **Suite Organization:**
+
 ```typescript
 // From test/auth/access-token.test.ts
 import { describe, expect, it } from "vitest";
@@ -76,6 +83,7 @@ describe("AccessTokenAuthProvider", () => {
 ```
 
 **Patterns:**
+
 - One `describe()` per exported class or function: `describe("AccessTokenAuthProvider")`
 - Multiple `it()` tests per behavior: happy path, edge cases, error cases
 - No setup/teardown unless file I/O involved
@@ -86,6 +94,7 @@ describe("AccessTokenAuthProvider", () => {
 **Framework:** `vitest`'s `vi` mock object
 
 **Patterns:**
+
 ```typescript
 // From test/meetup/list-groups.test.ts — mocking client.request
 const client = {
@@ -112,12 +121,14 @@ const client = {
 ```
 
 **What to Mock:**
+
 - GraphQL client requests (via `vi.fn()` mock methods)
 - Global fetch for OAuth flows
 - File system operations when testing archive writers
 - Never mock: crypto, hash functions, JSON parsing (test real implementations)
 
 **What NOT to Mock:**
+
 - Actual crypto operations: use real `jose` library functions
 - Hash algorithms: `stableHash()` should compute real hashes in tests
 - JSON serialization: always serialize/deserialize for real in tests
@@ -126,6 +137,7 @@ const client = {
 ## Fixtures and Factories
 
 **Test Data:**
+
 ```typescript
 // From test/archive/jsonl-writer.test.ts
 function makeRecord(overrides?: Partial<ArchiveRecord>): ArchiveRecord {
@@ -162,6 +174,7 @@ function makeSearchPage(
 ```
 
 **Location:**
+
 - Defined inside test files, typically at top after imports
 - Helper functions named `make*()` or `generate*()`
 - Exported if used across multiple test files (none currently are)
@@ -170,6 +183,7 @@ function makeSearchPage(
 ## Setup and Teardown
 
 **beforeEach/afterEach usage:**
+
 ```typescript
 // From test/archive/jsonl-writer.test.ts
 describe("JsonlWriter", () => {
@@ -191,6 +205,7 @@ describe("JsonlWriter", () => {
 ```
 
 **When used:**
+
 - Only for file system setup (temporary directories)
 - Not used for mocking or state initialization (prefer inline setup)
 - Cleanup always in `afterEach()` to avoid test pollution
@@ -198,6 +213,7 @@ describe("JsonlWriter", () => {
 ## Async Testing
 
 **Pattern:**
+
 ```typescript
 // From test/auth/jwt-bearer.test.ts
 it("requests a token with correct JWT claims", async () => {
@@ -219,6 +235,7 @@ it("requests a token with correct JWT claims", async () => {
 ```
 
 **Conventions:**
+
 - `async` keyword on test function when awaiting Promises
 - `await` on all async calls (no unhandled promise rejections)
 - Mock setup before async code under test
@@ -227,6 +244,7 @@ it("requests a token with correct JWT claims", async () => {
 ## Error Testing
 
 **Pattern:**
+
 ```typescript
 // From test/meetup/list-groups.test.ts
 it("throws AuthorizationError when proNetwork is null", async () => {
@@ -235,9 +253,7 @@ it("throws AuthorizationError when proNetwork is null", async () => {
     close: vi.fn(),
   };
 
-  await expect(listGroups(client as never, "unknown-network")).rejects.toThrow(
-    AuthorizationError,
-  );
+  await expect(listGroups(client as never, "unknown-network")).rejects.toThrow(AuthorizationError);
 });
 
 // From test/meetup/get-event-details.test.ts
@@ -247,13 +263,12 @@ it("throws AuthenticationError on HTTP 401", async () => {
     close: vi.fn(),
   };
 
-  await expect(getEventDetails(client as never, "evt-1")).rejects.toThrow(
-    AuthenticationError,
-  );
+  await expect(getEventDetails(client as never, "evt-1")).rejects.toThrow(AuthenticationError);
 });
 ```
 
 **Patterns:**
+
 - Use `expect(...).rejects.toThrow(ErrorClass)` for async errors
 - Mock with `.mockRejectedValue()` to test error paths
 - Test both specific errors (AuthorizationError) and generic error handling
@@ -262,39 +277,46 @@ it("throws AuthenticationError on HTTP 401", async () => {
 ## Test Types
 
 **Unit Tests:**
+
 - Scope: Single function or class method
 - Examples: `AccessTokenAuthProvider.getAccessToken()`, `stableHash()`, `applyRsvpPrivacy()`
 - Approach: Mock dependencies, test pure logic in isolation
 - Files: `test/auth/*.test.ts`, `test/privacy/*.test.ts`
 
 **Integration Tests:**
+
 - Scope: Multiple modules working together
 - Examples: `MeetupGraphqlClient` with retries, pagination in `listGroups()`
 - Approach: Mock external APIs (GraphQL endpoint), test orchestration logic
 - Files: `test/meetup/*.test.ts` (mock graphql-request client calls)
 
 **Fixtures and File I/O Tests:**
+
 - Scope: Archive writers, checksums, manifest generation
 - Examples: `JsonlWriter`, `writeChecksums()`
 - Approach: Create real temporary files, verify output, clean up
 - Files: `test/archive/*.test.ts`
 
 **E2E Tests:**
+
 - Status: Not used in this codebase
 - Justification: CLI testing would require real Meetup API credentials; MVP phase (see CLAUDE.md)
 
 ## Coverage
 
 **Requirements:**
+
 - No explicit coverage target enforced (no pre-commit hook)
 - No coverage exclusions configured
 
 **View Coverage:**
+
 ```bash
 vp test --coverage
 ```
 
 **Current coverage status:**
+
 - Core modules well covered: auth, privacy filters, archive writers, query functions
 - CLI commands not tested (would require integration setup)
 - Export orchestrator partially tested (mocked client calls)
@@ -302,6 +324,7 @@ vp test --coverage
 ## Coverage Gaps
 
 **Not covered:**
+
 - `src/cli/commands/*` — CLI commands (require environment setup)
 - `src/export/orchestrator.ts` — Full export flow (would be integration-level)
 - Error boundary cases in `requestOAuthToken()` (HTTP error paths partially tested)
@@ -310,12 +333,14 @@ vp test --coverage
 ## Test Utilities
 
 **Helper utilities:**
+
 - None in a dedicated `test/helpers/` directory
 - Helpers live inline in test files (factories like `makeRecord()`, `makeGroup()`)
 - Crypto utilities for test setup: `generateTestKey()` in `test/auth/jwt-bearer.test.ts`
 - Temporary directory helpers: `mkdtemp()`, `tmpdir()` from Node.js built-in modules
 
 **Example helper from `test/auth/jwt-bearer.test.ts`:**
+
 ```typescript
 async function generateTestKey(): Promise<string> {
   const { privateKey } = await generateKeyPair("RS256", { extractable: true });
@@ -342,23 +367,27 @@ function makeTokenServer() {
 ## Testing Best Practices Observed
 
 **Naming clarity:**
+
 - Test descriptions are clear: "returns the provided token", "reuses cached token within expiry window"
 - Describe blocks use class/function names: `describe("AccessTokenAuthProvider")`
 
 **Minimal setup:**
+
 - Factories with defaults reduce boilerplate
 - Inline mocks over shared mock factories
 - No global before/after blocks (only used for file cleanup)
 
 **Assertion specificity:**
+
 - Tests check specific fields: `expect(result.memberId).toMatch(/^member_[0-9a-f]{12}$/)`
 - Multiple assertions per test when related: testing both stable hashing and PII replacement
 - Verify mock calls and return values: `expect(client.request).toHaveBeenCalledOnce()` + `expect(groups[0]).toMatchObject(...)`
 
 **Test data validity:**
+
 - Fixtures match real API shapes: `makeSearchPage()` returns exact GraphQL response structure
 - Edge cases covered: null values, empty arrays, pagination cursors, missing fields
 
 ---
 
-*Testing analysis: 2026-05-08*
+_Testing analysis: 2026-05-08_

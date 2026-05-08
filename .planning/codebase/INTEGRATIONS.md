@@ -5,6 +5,7 @@
 ## APIs & External Services
 
 **Meetup GraphQL API:**
+
 - Service: Meetup Pro platform
 - What it's used for: Fetch group, event, RSVP, and registration data; user profile info; network access verification
   - SDK/Client: `graphql-request` 7.1.2 with `graphql-codegen` for typed queries
@@ -14,6 +15,7 @@
   - Retry strategy: Up to 4 attempts on rate limit; waits until `resetAt` timestamp before retry
 
 **Meetup OAuth 2 Token Endpoint:**
+
 - Service: Meetup secure auth server
 - What it's used for: Exchange OAuth credentials for access tokens
   - Token endpoint: `https://secure.meetup.com/oauth2/access` (configurable)
@@ -23,9 +25,11 @@
 ## Data Storage
 
 **Databases:**
+
 - Not used - No persistent database
 
 **File Storage:**
+
 - Local filesystem only
 - Output structure: `exports/meetup-YYYY-MM-DD/`
   - `manifest.json` - Export metadata and record counts
@@ -39,6 +43,7 @@
   - Tracks exported records by `(entityType, sourceId, parentIds)` for resumable exports
 
 **Caching:**
+
 - Token cache: In-memory (JWT access tokens cached with 60s safety margin before expiration)
 - Private key cache: In-memory (imported PKCS8 key cached as CryptoKey)
 - No distributed caching
@@ -46,8 +51,8 @@
 ## Authentication & Identity
 
 **Auth Providers:**
+
 - Three implementations of `MeetupAuthProvider` interface (`src/auth/provider.ts`):
-  
   1. **AccessTokenAuthProvider** - Direct token mode (debug)
      - Implementation: `src/auth/access-token.ts`
      - Input: `--access-token <token>` or `MEETUP_ACCESS_TOKEN` env var
@@ -76,9 +81,11 @@
      - Token store: Abstracted via `RefreshTokenStore` interface (file-based implementation in CLI)
 
 **Config Priority:**
+
 - CLI flags → environment variables → `.env` file
 
 **Token Security:**
+
 - Never logged or exposed in error messages
 - Error messages mask token values
 - Private keys never logged
@@ -86,9 +93,11 @@
 ## Monitoring & Observability
 
 **Error Tracking:**
+
 - Not integrated - Application logs errors to stdout/stderr
 
 **Logs:**
+
 - Logger abstraction: `src/logging/index.ts`
 - Formats: Human-readable text or JSON (via `--json-logs` flag)
 - Sensitive data: Token values masked, key paths redacted
@@ -103,15 +112,18 @@
 ## CI/CD & Deployment
 
 **Hosting:**
+
 - Standalone CLI binary - No server hosting required
 - Distributed as npm package with bin entry: `meetup-exit` → `dist/cli/main.js`
 
 **CI Pipeline:**
+
 - Dependabot: `.github/dependabot.yml` (dependency updates)
 - No GitHub Actions workflows detected
 - Build: `vp pack` → ESM CLI binary + TypeScript definitions
 
 **Build Artifacts:**
+
 - `dist/cli/main.js` - ESM CLI binary (runnable with Bun)
 - `dist/cli/main.d.ts` - TypeScript type definitions
 
@@ -120,6 +132,7 @@
 **Required env vars (depending on auth mode):**
 
 **For JWT Bearer (primary):**
+
 - `MEETUP_AUTH_MODE=jwt-bearer`
 - `MEETUP_CLIENT_KEY` - OAuth client key
 - `MEETUP_AUTHORIZED_MEMBER_ID` - Authorized member ID
@@ -127,21 +140,25 @@
 - `MEETUP_PRIVATE_KEY_PATH` - Path to RSA private key
 
 **For Direct Token:**
+
 - `MEETUP_AUTH_MODE=access-token`
 - `MEETUP_ACCESS_TOKEN` - Bearer token
 
 **For Refresh Token:**
+
 - `MEETUP_AUTH_MODE=refresh-token`
 - `MEETUP_CLIENT_KEY` - OAuth client key
 - `MEETUP_CLIENT_SECRET` - OAuth client secret
 - `MEETUP_REFRESH_TOKEN_FILE` - Path to refresh token file
 
 **Optional:**
+
 - `MEETUP_ENDPOINT` - GraphQL endpoint (default: `https://api.meetup.com/gql-ext`)
 - `MEETUP_PRIVACY_MODE` - Privacy mode for exports (default: `full`)
 - `MEETUP_PSEUDONYMIZATION_SALT` - Salt for stable pseudonymization hashes
 
 **Secrets location:**
+
 - `.env` file (gitignored)
 - `secrets/meetup-private-key.pem` (RSA private key, gitignored)
 - `secrets/meetup-refresh-token.txt` (OAuth refresh token, gitignored)
@@ -150,11 +167,13 @@
 ## Webhooks & Callbacks
 
 **Incoming:**
+
 - None - CLI is request-only, no webhook endpoints
 
 **Outgoing:**
+
 - None - No outgoing webhooks or callbacks
 
 ---
 
-*Integration audit: 2026-05-08*
+_Integration audit: 2026-05-08_

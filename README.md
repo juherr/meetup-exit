@@ -60,12 +60,12 @@ All options can also be passed as CLI flags — run `bun src/cli/main.ts --help`
 
 ## Commands
 
-| Command                             | Description                                               |
-| ----------------------------------- | --------------------------------------------------------- |
-| `verify-auth`                       | Test authentication, display identity                     |
-| `probe-network --network <urlname>` | Confirm Pro network access                                |
-| `introspect --out <file>`           | Dump GraphQL schema to JSON                               |
-| `export --network <urlname> --out <dir> [flags]` | Export all network data to an archive      |
+| Command                                          | Description                           |
+| ------------------------------------------------ | ------------------------------------- |
+| `verify-auth`                                    | Test authentication, display identity |
+| `probe-network --network <urlname>`              | Confirm Pro network access            |
+| `introspect --out <file>`                        | Dump GraphQL schema to JSON           |
+| `export --network <urlname> --out <dir> [flags]` | Export all network data to an archive |
 
 Key `export` flags: `--include-groups`, `--include-events`, `--include-rsvps`, `--include-registration-answers`, `--include-markdown`, `--privacy-mode <mode>`, `--dry-run`.
 
