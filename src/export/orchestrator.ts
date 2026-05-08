@@ -24,6 +24,10 @@ import type {
   AttendeeCsvRow,
   RegistrationAnswerCsvRow,
 } from "../archive/csv/index.ts";
+import { writeEventMarkdown } from "../archive/markdown/index.ts";
+
+export const PRIVACY_MODES = ["full", "no-email", "pseudonymized", "public-archive"] as const;
+export type PrivacyMode = (typeof PRIVACY_MODES)[number];
 
 export type ExportOptions = {
   network: string;
@@ -32,8 +36,10 @@ export type ExportOptions = {
   includeEvents: boolean;
   includeRsvps: boolean;
   includeRegistrationAnswers: boolean;
+  includeMarkdown: boolean;
   eventStatuses: string[];
   pageSize: number;
+  privacyMode: PrivacyMode;
   dryRun: boolean;
 };
 
@@ -58,8 +64,15 @@ export async function runExport(
     errors: 0,
   };
 
-  await mkdir(join(options.outDir, "raw"), { recursive: true });
-  await mkdir(join(options.outDir, "csv"), { recursive: true });
+  const markdownEventsDir = join(options.outDir, "markdown", "events");
+
+  if (!options.dryRun) {
+    await Promise.all([
+      mkdir(join(options.outDir, "raw"), { recursive: true }),
+      mkdir(join(options.outDir, "csv"), { recursive: true }),
+      ...(options.includeMarkdown ? [mkdir(markdownEventsDir, { recursive: true })] : []),
+    ]);
+  }
 
   const groupCsvRows: GroupCsvRow[] = [];
   const eventCsvRows: EventCsvRow[] = [];
@@ -155,6 +168,9 @@ export async function runExport(
             featuredPhotoId: details.featuredEventPhoto?.id ?? "",
             featuredPhotoBaseUrl: details.featuredEventPhoto?.baseUrl ?? "",
           });
+          if (options.includeMarkdown && !options.dryRun) {
+            await writeEventMarkdown(markdownEventsDir, details, options.privacyMode);
+          }
         } catch (error) {
           if (error instanceof AuthenticationError || error instanceof AuthorizationError)
             throw error;
@@ -270,6 +286,8 @@ export async function runExport(
         logger.info(`[dry-run] would write ${rsvpCsvRows.length} RSVP rows`);
       if (options.includeRegistrationAnswers)
         logger.info(`[dry-run] would write ${answerCsvRows.length} registration answer rows`);
+      if (options.includeMarkdown)
+        logger.info(`[dry-run] would write ${eventDetailsMap.size} event markdown files`);
     }
   } finally {
     const closeResults = await Promise.allSettled([

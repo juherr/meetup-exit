@@ -2,7 +2,8 @@ import { Command } from "commander";
 import { AuthenticationError, AuthorizationError } from "../../errors/index.ts";
 import { createLogger } from "../../logging/index.ts";
 import { MeetupGraphqlClient } from "../../meetup/client.ts";
-import { runExport } from "../../export/orchestrator.ts";
+import { runExport, PRIVACY_MODES } from "../../export/orchestrator.ts";
+import type { PrivacyMode } from "../../export/orchestrator.ts";
 import { MEETUP_ENDPOINT, addAuthOptions, buildAuthProvider } from "../shared/auth-options.ts";
 import type { AuthOpts } from "../shared/auth-options.ts";
 
@@ -13,9 +14,11 @@ type ExportOpts = AuthOpts & {
   includeEvents?: true;
   includeRsvps?: true;
   includeRegistrationAnswers?: true;
+  includeMarkdown?: true;
   eventStatus: string[];
   allEventStatuses?: true;
   pageSize: string;
+  privacyMode: string;
   dryRun?: true;
   endpoint: string;
   jsonLogs?: true;
@@ -35,6 +38,7 @@ export const exportCommand = addAuthOptions(
     "--include-registration-answers",
     "export registration answers (requires --include-events)",
   )
+  .option("--include-markdown", "generate Markdown files for events (requires --include-events)")
   .option(
     "--event-status <status>",
     "event status filter, repeatable (UPCOMING, PAST, etc.)",
@@ -43,6 +47,11 @@ export const exportCommand = addAuthOptions(
   )
   .option("--all-event-statuses", "include UPCOMING and PAST events")
   .option("--page-size <n>", "number of items per page", "100")
+  .option(
+    "--privacy-mode <mode>",
+    `privacy mode (${PRIVACY_MODES.join(", ")})`,
+    process.env["MEETUP_PRIVACY_MODE"] ?? "full",
+  )
   .option("--dry-run", "fetch data without writing any files")
   .option("--endpoint <url>", "GraphQL endpoint", process.env["MEETUP_ENDPOINT"] ?? MEETUP_ENDPOINT)
   .option("--json-logs", "output logs as JSON")
@@ -54,6 +63,12 @@ export const exportCommand = addAuthOptions(
       logger.error("--page-size must be a positive integer");
       process.exit(5);
     }
+
+    if (!PRIVACY_MODES.includes(opts.privacyMode as PrivacyMode)) {
+      logger.error(`--privacy-mode must be one of: ${PRIVACY_MODES.join(", ")}`);
+      process.exit(5);
+    }
+    const privacyMode = opts.privacyMode as PrivacyMode;
 
     const eventStatuses = opts.allEventStatuses ? ["UPCOMING", "PAST"] : opts.eventStatus;
 
@@ -74,8 +89,10 @@ export const exportCommand = addAuthOptions(
           includeEvents: opts.includeEvents === true,
           includeRsvps: opts.includeRsvps === true,
           includeRegistrationAnswers: opts.includeRegistrationAnswers === true,
+          includeMarkdown: opts.includeMarkdown === true,
           eventStatuses,
           pageSize,
+          privacyMode,
           dryRun: opts.dryRun === true,
         },
         logger,
