@@ -1,4 +1,5 @@
 import { program } from "commander";
+import { exportCommand } from "./commands/export.ts";
 import { introspectCommand } from "./commands/introspect.ts";
 import { probeNetworkCommand } from "./commands/probe-network.ts";
 import { verifyAuthCommand } from "./commands/verify-auth.ts";
@@ -9,6 +10,7 @@ program
   .version("0.1.0")
   .addCommand(verifyAuthCommand)
   .addCommand(probeNetworkCommand)
-  .addCommand(introspectCommand);
+  .addCommand(introspectCommand)
+  .addCommand(exportCommand);
 
 await program.parseAsync(process.argv);

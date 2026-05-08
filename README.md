@@ -60,11 +60,11 @@ All options can also be passed as CLI flags — run `bun src/cli/main.ts --help`
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `verify-auth` | Test authentication, display identity |
-| `probe-network --network <urlname>` | Confirm Pro network access |
-| `introspect --out <file>` | Dump GraphQL schema to JSON |
+| Command                             | Description                           |
+| ----------------------------------- | ------------------------------------- |
+| `verify-auth`                       | Test authentication, display identity |
+| `probe-network --network <urlname>` | Confirm Pro network access            |
+| `introspect --out <file>`           | Dump GraphQL schema to JSON           |
 
 Exit codes: `0` success, `1` general error, `2` auth error, `3` network access denied, `5` invalid config.
 
@@ -97,18 +97,21 @@ Full specs in `specs/README.md`.
 ## Roadmap
 
 ### Phase 1 — Bootstrap + auth ✅
+
 - CLI scaffold (`commander`, Bun, Vite+)
 - `AccessTokenAuthProvider` (debug direct token)
 - `MeetupGraphqlClient` (Bottleneck rate limiting, retry on `RATE_LIMITED`)
 - `verify-auth` command
 
 ### Phase 2 — Network probe + schema ✅
+
 - `OAuthJwtBearerAuthProvider` (RS256 JWT → OAuth2 access token)
 - `probe-network` command
 - `introspect` command
 - `listGroups` (paginated, cursor loop detection)
 
 ### Phase 3 — Export (in progress)
+
 - GraphQL codegen (typed SDK from introspection schema)
 - `export` command — groups → events → event details → RSVPs → registration answers
 - Raw JSONL archive writer
@@ -116,15 +119,18 @@ Full specs in `specs/README.md`.
 - Resume support (`--resume`, local index)
 
 ### Phase 4 — Archive + formats
+
 - Markdown event pages (YAML frontmatter, slugification)
 - `manifest.json` + `sha256.txt` checksums
 - `convert` command (re-derive CSV/Markdown from existing raw archive)
 
 ### Phase 5 — Privacy + GDPR
+
 - `no-email`, `pseudonymized`, `public-archive` modes
 - GDPR report (`reports/gdpr-review.md`)
 
 ### Phase 6 — Hardening
+
 - `doctor` command (env check, key permissions, output writability)
 - Error records (`raw/errors.jsonl`, `reports/errors.md`)
 - `OAuthRefreshTokenAuthProvider` (single-use refresh token persistence)
