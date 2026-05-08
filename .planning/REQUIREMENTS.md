@@ -9,7 +9,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Convert
 
-- [ ] **CONV-01**: L'utilisateur peut re-dériver CSV/Markdown depuis un raw JSONL existant sans re-fetcher l'API (`convert --input <dir> --out <dir>`)
+- [x] **CONV-01**: L'utilisateur peut re-dériver CSV/Markdown depuis un raw JSONL existant sans re-fetcher l'API (`convert --input <dir> --out <dir>`)
 
 ### Photos
 
@@ -30,7 +30,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 ### Documentation
 
 - [ ] **DOC-01**: README couvre le setup complet — création OAuth Client, configuration JWT bearer, exemple d'export complet, description des privacy modes
-- [ ] **DOC-02**: `.env.example` liste toutes les variables MEETUP_* avec commentaires en anglais
+- [ ] **DOC-02**: `.env.example` liste toutes les variables MEETUP\_\* avec commentaires en anglais
 - [ ] **DOC-03**: Security guide documente la gestion des tokens, private key, exports full, et configuration gitignore
 
 ## v2 Requirements
@@ -49,31 +49,33 @@ Reporté après le MVP.
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Interactive prompts | Spec constraint — no interactive prompts in MVP |
-| Real-time sync / watch mode | One-shot export uniquement |
-| OAuth web flow (browser redirect) | JWT Bearer est le flow principal |
-| Node.js compatibility | Bun uniquement |
+| Feature                           | Reason                                          |
+| --------------------------------- | ----------------------------------------------- |
+| Interactive prompts               | Spec constraint — no interactive prompts in MVP |
+| Real-time sync / watch mode       | One-shot export uniquement                      |
+| OAuth web flow (browser redirect) | JWT Bearer est le flow principal                |
+| Node.js compatibility             | Bun uniquement                                  |
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| CONV-01 | Phase 1 | Pending |
-| PHOTO-01 | Phase 2 | Pending |
-| RESM-01 | Phase 2 | Pending |
-| ERR-01 | Phase 2 | Pending |
-| DIAG-01 | Phase 3 | Pending |
-| DOC-01 | Phase 3 | Pending |
-| DOC-02 | Phase 3 | Pending |
-| DOC-03 | Phase 3 | Pending |
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| CONV-01     | Phase 1 | Complete |
+| PHOTO-01    | Phase 2 | Pending |
+| RESM-01     | Phase 2 | Pending |
+| ERR-01      | Phase 2 | Pending |
+| DIAG-01     | Phase 3 | Pending |
+| DOC-01      | Phase 3 | Pending |
+| DOC-02      | Phase 3 | Pending |
+| DOC-03      | Phase 3 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 8 total
 - Mapped to phases: 8
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-05-08*
-*Last updated: 2026-05-08 after initial definition*
+
+_Requirements defined: 2026-05-08_
+_Last updated: 2026-05-08 after initial definition_
