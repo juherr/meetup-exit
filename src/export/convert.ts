@@ -6,6 +6,7 @@ import type { ArchiveRecord } from "../archive/types.ts";
 import {
   writeGroupsCsv,
   writeEventsCsv,
+  writePhotosCsv,
   writeRsvpsCsv,
   writeAttendeesCsv,
   writeRegistrationAnswersCsv,
@@ -13,6 +14,7 @@ import {
 import type {
   GroupCsvRow,
   EventCsvRow,
+  PhotoCsvRow,
   RsvpCsvRow,
   AttendeeCsvRow,
   RegistrationAnswerCsvRow,
@@ -122,6 +124,7 @@ export async function runConvert(options: ConvertOptions, logger: Logger): Promi
 
   const groupCsvRows: GroupCsvRow[] = [];
   const eventCsvRows: EventCsvRow[] = [];
+  const photoCsvRows: PhotoCsvRow[] = [];
   const rsvpCsvRows: RsvpCsvRow[] = [];
   const attendeeCsvRows: AttendeeCsvRow[] = [];
   const answerCsvRows: RegistrationAnswerCsvRow[] = [];
@@ -188,6 +191,14 @@ export async function runConvert(options: ConvertOptions, logger: Logger): Promi
       featuredPhotoId: featuredEventPhoto?.id ?? "",
       featuredPhotoBaseUrl: featuredEventPhoto?.baseUrl ?? "",
     });
+
+    if (featuredEventPhoto !== null) {
+      photoCsvRows.push({
+        eventId: id,
+        photoId: featuredEventPhoto.id,
+        baseUrl: featuredEventPhoto.baseUrl,
+      });
+    }
 
     if (options.includeMarkdown && !options.dryRun) {
       const eventDetails: EventDetails = {
@@ -285,6 +296,9 @@ export async function runConvert(options: ConvertOptions, logger: Logger): Promi
     if (eventCsvRows.length > 0) {
       await writeEventsCsv(join(options.outDir, "csv/events.csv"), eventCsvRows);
     }
+    if (photoCsvRows.length > 0) {
+      await writePhotosCsv(join(options.outDir, "csv/photos.csv"), photoCsvRows);
+    }
     if (rsvpCsvRows.length > 0) {
       await writeRsvpsCsv(join(options.outDir, "csv/rsvps.csv"), rsvpCsvRows);
     }
@@ -301,6 +315,7 @@ export async function runConvert(options: ConvertOptions, logger: Logger): Promi
   } else {
     logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
     logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
+    logger.info(`[dry-run] would write ${photoCsvRows.length} photo rows`);
     logger.info(`[dry-run] would write ${rsvpCsvRows.length} RSVP rows`);
     logger.info(`[dry-run] would write ${answerCsvRows.length} registration answer rows`);
     if (options.includeMarkdown) {
