@@ -40,7 +40,13 @@ Plans:
 2. Running `export --resume` after a mid-export crash skips already-written entities and appends only missing records — no duplicate lines in any JSONL or CSV file
 3. A failed entity fetch writes a record to `raw/errors.jsonl` and the export continues to the next entity rather than stopping
 4. After export, `reports/errors.md` summarizes every entity that failed, with reason and timestamp
-   **Plans**: TBD
+   **Plans**: 3 plans
+
+Plans:
+
+- [ ] 02-01-PLAN.md — Photos CSV: PhotoCsvRow + writePhotosCsv, wire into orchestrator and convert (PHOTO-01)
+- [ ] 02-02-PLAN.md — Error records: extend ArchiveRecord, errors.jsonl, errors-report.ts, always-on reports/errors.md (ERR-01)
+- [ ] 02-03-PLAN.md — Resume: resume-index module, ExportOptions.resume, per-stage gates, CSV regen via runConvert, --resume CLI flag (RESM-01)
 
 ### Phase 3: Ops and Docs
 
@@ -60,5 +66,5 @@ Plans:
 | Phase                | Plans Complete | Status      | Completed  |
 | -------------------- | -------------- | ----------- | ---------- |
 | 1. Convert Command   | 1/1            | Complete    | 2026-05-08 |
-| 2. Export Resilience | 0/?            | Not started | -          |
+| 2. Export Resilience | 0/3            | Not started | -          |
 | 3. Ops and Docs      | 0/?            | Not started | -          |
