@@ -21,7 +21,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Error Handling
 
-- [ ] **ERR-01**: Les erreurs d'entités sont persistées dans `raw/errors.jsonl` et `reports/errors.md` — l'export continue sur les entités indépendantes, s'arrête sur auth failure
+- [x] **ERR-01**: Les erreurs d'entités sont persistées dans `raw/errors.jsonl` et `reports/errors.md` — l'export continue sur les entités indépendantes, s'arrête sur auth failure
 
 ### Diagnostics
 
@@ -63,7 +63,7 @@ Reporté après le MVP.
 | CONV-01     | Phase 1 | Complete |
 | PHOTO-01    | Phase 2 | Complete |
 | RESM-01     | Phase 2 | Pending  |
-| ERR-01      | Phase 2 | Pending  |
+| ERR-01      | Phase 2 | Complete |
 | DIAG-01     | Phase 3 | Pending  |
 | DOC-01      | Phase 3 | Pending  |
 | DOC-02      | Phase 3 | Pending  |

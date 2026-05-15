@@ -45,7 +45,7 @@ Plans:
 Plans:
 
 - [x] 02-01-PLAN.md — Photos CSV: PhotoCsvRow + writePhotosCsv, wire into orchestrator and convert (PHOTO-01)
-- [ ] 02-02-PLAN.md — Error records: extend ArchiveRecord, errors.jsonl, errors-report.ts, always-on reports/errors.md (ERR-01)
+- [x] 02-02-PLAN.md — Error records: extend ArchiveRecord, errors.jsonl, errors-report.ts, always-on reports/errors.md (ERR-01)
 - [ ] 02-03-PLAN.md — Resume: resume-index module, ExportOptions.resume, per-stage gates, CSV regen via runConvert, --resume CLI flag (RESM-01)
 
 ### Phase 3: Ops and Docs
