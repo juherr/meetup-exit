@@ -14,6 +14,7 @@ import { JsonlWriter } from "../archive/jsonl-writer.ts";
 import {
   writeGroupsCsv,
   writeEventsCsv,
+  writePhotosCsv,
   writeRsvpsCsv,
   writeAttendeesCsv,
   writeRegistrationAnswersCsv,
@@ -21,6 +22,7 @@ import {
 import type {
   GroupCsvRow,
   EventCsvRow,
+  PhotoCsvRow,
   RsvpCsvRow,
   AttendeeCsvRow,
   RegistrationAnswerCsvRow,
@@ -104,6 +106,7 @@ export async function runExport(
 
   const groupCsvRows: GroupCsvRow[] = [];
   const eventCsvRows: EventCsvRow[] = [];
+  const photoCsvRows: PhotoCsvRow[] = [];
   const rsvpCsvRows: RsvpCsvRow[] = [];
   const attendeeCsvRows: AttendeeCsvRow[] = [];
   const answerCsvRows: RegistrationAnswerCsvRow[] = [];
@@ -196,6 +199,13 @@ export async function runExport(
             featuredPhotoId: details.featuredEventPhoto?.id ?? "",
             featuredPhotoBaseUrl: details.featuredEventPhoto?.baseUrl ?? "",
           });
+          if (details.featuredEventPhoto !== null) {
+            photoCsvRows.push({
+              eventId: details.id,
+              photoId: details.featuredEventPhoto.id,
+              baseUrl: details.featuredEventPhoto.baseUrl,
+            });
+          }
           if (options.includeMarkdown && !options.dryRun) {
             let eventForMarkdown: EventDetails = details;
             if (options.privacyMode === "pseudonymized" && effectiveSalt) {
@@ -322,6 +332,8 @@ export async function runExport(
         await writeGroupsCsv(join(options.outDir, "csv/groups.csv"), groupCsvRows);
       if (eventCsvRows.length > 0)
         await writeEventsCsv(join(options.outDir, "csv/events.csv"), eventCsvRows);
+      if (photoCsvRows.length > 0)
+        await writePhotosCsv(join(options.outDir, "csv/photos.csv"), photoCsvRows);
       if (rsvpCsvRows.length > 0)
         await writeRsvpsCsv(join(options.outDir, "csv/rsvps.csv"), rsvpCsvRows);
       if (attendeeCsvRows.length > 0)
@@ -374,6 +386,7 @@ export async function runExport(
     } else {
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
+      logger.info(`[dry-run] would write ${photoCsvRows.length} photo rows`);
       if (options.includeRsvps)
         logger.info(`[dry-run] would write ${rsvpCsvRows.length} RSVP rows`);
       if (options.includeRegistrationAnswers)
