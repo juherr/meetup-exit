@@ -13,7 +13,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Photos
 
-- [ ] **PHOTO-01**: L'export inclut les métadonnées photos — `featuredEventPhoto` URL extraite, `csv/photos.csv` généré
+- [x] **PHOTO-01**: L'export inclut les métadonnées photos — `featuredEventPhoto` URL extraite, `csv/photos.csv` généré
 
 ### Resume
 
@@ -58,16 +58,16 @@ Reporté après le MVP.
 
 ## Traceability
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
 | CONV-01     | Phase 1 | Complete |
-| PHOTO-01    | Phase 2 | Pending |
-| RESM-01     | Phase 2 | Pending |
-| ERR-01      | Phase 2 | Pending |
-| DIAG-01     | Phase 3 | Pending |
-| DOC-01      | Phase 3 | Pending |
-| DOC-02      | Phase 3 | Pending |
-| DOC-03      | Phase 3 | Pending |
+| PHOTO-01    | Phase 2 | Complete |
+| RESM-01     | Phase 2 | Pending  |
+| ERR-01      | Phase 2 | Pending  |
+| DIAG-01     | Phase 3 | Pending  |
+| DOC-01      | Phase 3 | Pending  |
+| DOC-02      | Phase 3 | Pending  |
+| DOC-03      | Phase 3 | Pending  |
 
 **Coverage:**
 
