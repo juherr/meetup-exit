@@ -39,6 +39,8 @@ import {
   PSEUDONYM_PREFIXES,
 } from "../privacy/index.ts";
 import type { PrivacyMode } from "../privacy/index.ts";
+import { writeErrorsReport } from "../archive/errors-report.ts";
+import type { ExportErrorRecord } from "../archive/errors-report.ts";
 
 export { PRIVACY_MODES };
 export type { PrivacyMode };
@@ -110,6 +112,7 @@ export async function runExport(
   const rsvpCsvRows: RsvpCsvRow[] = [];
   const attendeeCsvRows: AttendeeCsvRow[] = [];
   const answerCsvRows: RegistrationAnswerCsvRow[] = [];
+  const errorRecords: ExportErrorRecord[] = [];
 
   const exportedAt = new Date().toISOString();
 
@@ -118,6 +121,7 @@ export async function runExport(
   const eventDetailsWriter = new JsonlWriter(join(options.outDir, "raw/event-details.jsonl"));
   const rsvpsWriter = new JsonlWriter(join(options.outDir, "raw/rsvps.jsonl"));
   const answersWriter = new JsonlWriter(join(options.outDir, "raw/registration-answers.jsonl"));
+  const errorsWriter = new JsonlWriter(join(options.outDir, "raw/errors.jsonl"));
 
   try {
     if (options.includeGroups) {
@@ -228,6 +232,20 @@ export async function runExport(
             `failed to fetch details for event ${event.id}: ${error instanceof Error ? error.message : String(error)}`,
           );
           counts.errors++;
+          const sourceId = event.id;
+          const message = error instanceof Error ? error.message : String(error);
+          const errorName = error instanceof Error ? error.name : "Error";
+          const timestamp = new Date().toISOString();
+          if (!options.dryRun) {
+            await errorsWriter.write({
+              source: "meetup",
+              exportedAt,
+              entityType: "error",
+              sourceId,
+              raw: { error: errorName, message, timestamp },
+            });
+          }
+          errorRecords.push({ entityType: "event-details", sourceId, timestamp, message });
         }
       }
 
@@ -283,6 +301,22 @@ export async function runExport(
               `failed to fetch RSVPs for event ${eventId}: ${error instanceof Error ? error.message : String(error)}`,
             );
             counts.errors++;
+            const sourceId = eventId;
+            const parentIds = { eventId };
+            const message = error instanceof Error ? error.message : String(error);
+            const errorName = error instanceof Error ? error.name : "Error";
+            const timestamp = new Date().toISOString();
+            if (!options.dryRun) {
+              await errorsWriter.write({
+                source: "meetup",
+                exportedAt,
+                entityType: "error",
+                sourceId,
+                parentIds,
+                raw: { error: errorName, message, timestamp },
+              });
+            }
+            errorRecords.push({ entityType: "rsvp", sourceId, timestamp, message });
           }
         }
         logger.info(`fetched ${counts.rsvps} RSVPs`);
@@ -321,6 +355,22 @@ export async function runExport(
               `failed to fetch registration answers for event ${eventId}: ${error instanceof Error ? error.message : String(error)}`,
             );
             counts.errors++;
+            const sourceId = eventId;
+            const parentIds = { eventId };
+            const message = error instanceof Error ? error.message : String(error);
+            const errorName = error instanceof Error ? error.name : "Error";
+            const timestamp = new Date().toISOString();
+            if (!options.dryRun) {
+              await errorsWriter.write({
+                source: "meetup",
+                exportedAt,
+                entityType: "error",
+                sourceId,
+                parentIds,
+                raw: { error: errorName, message, timestamp },
+              });
+            }
+            errorRecords.push({ entityType: "registration-answer", sourceId, timestamp, message });
           }
         }
         logger.info(`fetched ${counts.registrationAnswers} registration answer entries`);
@@ -383,6 +433,7 @@ export async function runExport(
           counts,
         }),
       ]);
+      await writeErrorsReport(options.outDir, errorRecords);
     } else {
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
@@ -393,8 +444,9 @@ export async function runExport(
         logger.info(`[dry-run] would write ${answerCsvRows.length} registration answer rows`);
       if (options.includeMarkdown)
         logger.info(`[dry-run] would write ${eventCsvRows.length} event markdown files`);
+      logger.info(`[dry-run] would write ${errorRecords.length} error records to raw/errors.jsonl`);
       logger.info(
-        "[dry-run] would write manifest.json, checksums/sha256.txt, and reports/gdpr-review.md",
+        "[dry-run] would write manifest.json, checksums/sha256.txt, reports/gdpr-review.md, and reports/errors.md",
       );
     }
   } finally {
@@ -404,6 +456,7 @@ export async function runExport(
       eventDetailsWriter.close(),
       rsvpsWriter.close(),
       answersWriter.close(),
+      errorsWriter.close(),
     ]);
     for (const result of closeResults) {
       if (result.status === "rejected") {
