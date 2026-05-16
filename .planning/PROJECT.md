@@ -20,13 +20,13 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 - ✓ Export: groups, events (+ details), RSVPs, registration answers — existing
 - ✓ Archive writers: JSONL, CSV (groups/events/rsvps/attendees/answers), Markdown, manifest.json, checksums — existing
 - ✓ Privacy modes: full, no-email, pseudonymized, public-archive, GDPR report — existing
+- ✓ `convert` command — re-derive CSV/Markdown from existing raw JSONL without re-fetching API (Validated in Phase 1)
+- ✓ Photos export — featuredEventPhoto URL extraction, CSV photos output, event_id/photo_id/base_url (Validated in Phase 2)
+- ✓ Resume — `--resume` flag, per-entity-type index at `.meetup-exit/index.json`, re-derives CSV via runConvert (Validated in Phase 2)
+- ✓ Error records — `raw/errors.jsonl` + `reports/errors.md`, export continues on entity failure (Validated in Phase 2)
 
 ### Active
 
-- [ ] `convert` command — re-derive CSV/Markdown from existing raw JSONL without re-fetching API
-- [ ] Photos export — featuredEventPhoto URL extraction, CSV photos output (Epic 5.6)
-- [ ] Resume — `--resume` flag, local index at `.meetup-exit/index.json`, no duplicates (Epic 9.1)
-- [ ] Error records — `raw/errors.jsonl` + `reports/errors.md`, export continues on entity failure (Epic 9.2)
 - [ ] `doctor` command — check Bun version, env vars, key permissions, output writability
 - [ ] README — setup OAuth Client, JWT bearer flow, full export examples, privacy modes
 - [ ] `.env.example` — all MEETUP\_\* variables with English comments
@@ -67,4 +67,4 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 
 ---
 
-_Last updated: 2026-05-08 after brownfield initialization_
+_Last updated: 2026-05-16 — Phase 2 complete (photos CSV, error persistence, resume)_
