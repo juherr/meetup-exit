@@ -60,7 +60,7 @@ completed: 2026-05-16
 ## Accomplishments
 
 - README.md fully rewritten: removed in-progress banner and roadmap, added all 6 commands table, full export example with `--privacy-mode no-email` and `--resume`, all four privacy modes documented, exit codes reference, SECURITY.md link
-- .env.example: every MEETUP_* variable now has a meaningful English inline comment explaining purpose and expected format (9 variables, 0 added, 0 removed)
+- .env.example: every MEETUP\_\* variable now has a meaningful English inline comment explaining purpose and expected format (9 variables, 0 added, 0 removed)
 - SECURITY.md created at project root: ephemeral salt warning as lead content, private key chmod 600 rule, token handling (never logged, masked in errors, single-use refresh), full-export PII sensitivity, gitignore verification command
 
 ## Task Commits
@@ -76,7 +76,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 - `README.md` — Full rewrite: prerequisites, install, quick start (with doctor), authentication (3 modes), all 6 commands table, full export example, privacy modes, development commands, project layout, SECURITY.md link
-- `.env.example` — Inline comments added to all 9 MEETUP_* variable lines; group-level header comments preserved; no variables added or removed
+- `.env.example` — Inline comments added to all 9 MEETUP\_\* variable lines; group-level header comments preserved; no variables added or removed
 - `SECURITY.md` — New file: ephemeral salt (lead), private key 600, token masking, single-use refresh token, full-export PII sensitivity, gitignore config
 
 ## Decisions Made
@@ -100,11 +100,13 @@ None - no external service configuration required. All files are documentation u
 ## Next Phase Readiness
 
 Phase 03 (ops-and-docs) is now complete:
+
 - `doctor` command implemented (plan 03-01)
 - README, .env.example, and SECURITY.md finalized (this plan)
 
 A new user can follow the README from zero to first export. The pseudonymization salt concern flagged in Blockers/Concerns has been addressed in SECURITY.md.
 
 ---
-*Phase: 03-ops-and-docs*
-*Completed: 2026-05-16*
+
+_Phase: 03-ops-and-docs_
+_Completed: 2026-05-16_

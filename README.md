@@ -72,14 +72,14 @@ All options can also be passed as CLI flags — run `bun src/cli/main.ts --help`
 
 ## Commands
 
-| Command | Purpose |
-| ------- | ------- |
-| `verify-auth` | Test authentication and display identity (`self`) |
-| `probe-network --network <urlname>` | Confirm Pro network access, exit 3 on failure |
-| `introspect --out <file>` | Dump GraphQL schema to JSON |
-| `export --network <urlname> --out <dir> [flags]` | Export all network data to an archive |
-| `convert --input <dir> --out <dir>` | Re-derive CSV/Markdown from an existing raw JSONL archive |
-| `doctor` | Validate local config (Bun version, env vars, key permissions, output dir) |
+| Command                                          | Purpose                                                                    |
+| ------------------------------------------------ | -------------------------------------------------------------------------- |
+| `verify-auth`                                    | Test authentication and display identity (`self`)                          |
+| `probe-network --network <urlname>`              | Confirm Pro network access, exit 3 on failure                              |
+| `introspect --out <file>`                        | Dump GraphQL schema to JSON                                                |
+| `export --network <urlname> --out <dir> [flags]` | Export all network data to an archive                                      |
+| `convert --input <dir> --out <dir>`              | Re-derive CSV/Markdown from an existing raw JSONL archive                  |
+| `doctor`                                         | Validate local config (Bun version, env vars, key permissions, output dir) |
 
 Key `export` flags: `--include-events`, `--include-rsvps`, `--include-registration-answers`, `--include-photos`, `--privacy-mode <mode>`, `--dry-run`, `--resume`.
 
@@ -103,12 +103,12 @@ If the export is interrupted, re-run with `--resume` to continue from where it s
 
 ## Privacy modes
 
-| Mode | Description |
-| ---- | ----------- |
-| `full` | All data included — treat the archive as sensitive, for private use only |
-| `no-email` | Email addresses stripped from CSV and Markdown outputs; raw JSONL may remain full |
-| `pseudonymized` | Member IDs and email addresses replaced with stable salted hashes (e.g., `member_a3f19c2b`) |
-| `public-archive` | Events, dates, descriptions, hosts, and photos only — no RSVPs, emails, or form answers |
+| Mode             | Description                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| `full`           | All data included — treat the archive as sensitive, for private use only                    |
+| `no-email`       | Email addresses stripped from CSV and Markdown outputs; raw JSONL may remain full           |
+| `pseudonymized`  | Member IDs and email addresses replaced with stable salted hashes (e.g., `member_a3f19c2b`) |
+| `public-archive` | Events, dates, descriptions, hosts, and photos only — no RSVPs, emails, or form answers     |
 
 Note: pseudonymized hashes are **not stable across export runs** — each run generates a new salt. Do not cross-reference pseudonymized archives from different runs to correlate members. See [SECURITY.md](SECURITY.md) for details.
 

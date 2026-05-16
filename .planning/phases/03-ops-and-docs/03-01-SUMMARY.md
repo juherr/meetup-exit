@@ -58,6 +58,7 @@ completed: 2026-05-16
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Implemented `doctor` command with 5 check categories: Bun >= 1.x, auth mode validity, required env vars (auth-mode aware), private key file permissions (jwt-bearer/refresh-token only), output dir writability
 - Auth-mode aware: MEETUP_AUTH_MODE determines which env vars are checked (D-02)
 - Threat model enforced: no secret values in output, no file reads, no file creation side effects
@@ -71,10 +72,12 @@ Each task was committed atomically:
 2. **Task 2: Register doctorCommand in main.ts** - `3e071fb` (feat)
 
 ## Files Created/Modified
+
 - `src/cli/commands/doctor.ts` - New: doctorCommand with all 5 checks, auth-mode aware, no network calls
 - `src/cli/main.ts` - Modified: added doctorCommand import and .addCommand(doctorCommand)
 
 ## Decisions Made
+
 - Import `constants` from `node:fs` (not `node:fs/promises`) as specified in plan acceptance criteria
 - Unknown auth mode triggers immediate exit with summary, skips remaining checks (cleaner UX than checking with unknown mode)
 - Default auth mode falls back to 'access-token' when MEETUP_AUTH_MODE is unset (mirrors auth-options.ts behavior)
@@ -85,15 +88,19 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - oxfmt formatter changed minor whitespace in doctor.ts (long line wrap for output dir message) — auto-fixed by running `vp check --fix` before Task 2 commit
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - `doctor` command complete and verified: all 5 checks work, exit codes correct, no secret leakage
 - Ready for 03-02: README rewrite, .env.example comments, and SECURITY.md
 
 ---
-*Phase: 03-ops-and-docs*
-*Completed: 2026-05-16*
+
+_Phase: 03-ops-and-docs_
+_Completed: 2026-05-16_
