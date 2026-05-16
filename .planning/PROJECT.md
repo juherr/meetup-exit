@@ -67,4 +67,4 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 
 ---
 
-_Last updated: 2026-05-16 — Phase 2 complete (photos CSV, error persistence, resume)_
+_Last updated: 2026-05-16 — Phase 3 complete (doctor command, README rewrite, SECURITY.md)_
