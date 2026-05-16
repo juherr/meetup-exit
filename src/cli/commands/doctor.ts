@@ -85,7 +85,9 @@ export const doctorCommand = new Command("doctor")
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const isNotFound =
-          error instanceof Error && "code" in error && (error as NodeJS.ErrnoException).code === "ENOENT";
+          error instanceof Error &&
+          "code" in error &&
+          (error as NodeJS.ErrnoException).code === "ENOENT";
         if (isNotFound) {
           console.log(`✗ Private key: ${keyPath} (file not found)`);
         } else {
@@ -102,7 +104,9 @@ export const doctorCommand = new Command("doctor")
       await access(outputDir, constants.W_OK);
       console.log(`✓ Output dir: ${outputDir} (writable)`);
     } catch {
-      console.log(`✗ Output dir: ${outputDir} (not writable — create directory or check permissions)`);
+      console.log(
+        `✗ Output dir: ${outputDir} (not writable — create directory or check permissions)`,
+      );
       failedCount++;
     }
 
