@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-export-resilience/02-02-PLAN.md
-last_updated: "2026-05-15T22:42:55.083Z"
-last_activity: 2026-05-15
+status: verifying
+stopped_at: Completed 02-export-resilience/02-03-PLAN.md
+last_updated: "2026-05-16T00:21:23.990Z"
+last_activity: 2026-05-16
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 33
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 
 Phase: 02 (export-resilience) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-05-15
+Status: Phase complete — ready for verification
+Last activity: 2026-05-16
 
 Progress: [██░░░░░░░░] 33%
 
@@ -54,6 +54,7 @@ Progress: [██░░░░░░░░] 33%
 _Updated after each plan completion_
 | Phase 02-export-resilience P02-01 | 4min | 3 tasks | 5 files |
 | Phase 02-export-resilience P02-02 | 2min | 2 tasks | 4 files |
+| Phase 02-export-resilience P02-03 | 10min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 02-export-resilience]: 02-02: writeErrorsReport called after Promise.all([writeManifest, writeGdprReport]) as a separate post-step for explicit ordering and extensibility
 - [Phase 02-export-resilience]: 02-02: errorRecords accumulator always populated even in dry-run; errorsWriter.write() guarded by !options.dryRun — report is in-memory, JSONL is filesystem
 - [Phase 02-export-resilience]: 02-02: entityType in errorRecords uses original entity type (event-details, rsvp, registration-answer) while ArchiveRecord uses entityType: error
+- [Phase 02-export-resilience]: 02-03: Resume index at <outDir>/.meetup-exit/index.json per-export scope; entity-type granularity (D-04, D-07)
+- [Phase 02-export-resilience]: 02-03: On resume, runConvert(inputDir: outDir, outDir: outDir) re-derives all CSVs from complete JSONL — no duplicate rows (D-06)
+- [Phase 02-export-resilience]: 02-03: Missing/corrupt index returns empty fallback — --resume with no index = fresh export (D-08)
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-15T22:42:55.080Z
-Stopped at: Completed 02-export-resilience/02-02-PLAN.md
+Last session: 2026-05-16T00:21:23.987Z
+Stopped at: Completed 02-export-resilience/02-03-PLAN.md
 Resume file: None

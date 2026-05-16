@@ -17,7 +17,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Resume
 
-- [ ] **RESM-01**: L'utilisateur peut reprendre un export partiel avec `--resume` — index local à `.meetup-exit/index.json`, aucun doublon dans les fichiers archive
+- [x] **RESM-01**: L'utilisateur peut reprendre un export partiel avec `--resume` — index local à `.meetup-exit/index.json`, aucun doublon dans les fichiers archive
 
 ### Error Handling
 
@@ -62,7 +62,7 @@ Reporté après le MVP.
 | ----------- | ------- | -------- |
 | CONV-01     | Phase 1 | Complete |
 | PHOTO-01    | Phase 2 | Complete |
-| RESM-01     | Phase 2 | Pending  |
+| RESM-01     | Phase 2 | Complete |
 | ERR-01      | Phase 2 | Complete |
 | DIAG-01     | Phase 3 | Pending  |
 | DOC-01      | Phase 3 | Pending  |
