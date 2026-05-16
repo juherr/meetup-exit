@@ -25,7 +25,7 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Diagnostics
 
-- [ ] **DIAG-01**: La commande `doctor` vérifie la version Bun, les vars d'environnement requises, les permissions de la clé privée, et la writabilité du répertoire de sortie
+- [x] **DIAG-01**: La commande `doctor` vérifie la version Bun, les vars d'environnement requises, les permissions de la clé privée, et la writabilité du répertoire de sortie
 
 ### Documentation
 
@@ -64,7 +64,7 @@ Reporté après le MVP.
 | PHOTO-01    | Phase 2 | Complete |
 | RESM-01     | Phase 2 | Complete |
 | ERR-01      | Phase 2 | Complete |
-| DIAG-01     | Phase 3 | Pending  |
+| DIAG-01     | Phase 3 | Complete |
 | DOC-01      | Phase 3 | Pending  |
 | DOC-02      | Phase 3 | Pending  |
 | DOC-03      | Phase 3 | Pending  |

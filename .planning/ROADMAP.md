@@ -63,7 +63,7 @@ Plans:
 
 Plans:
 
-- [ ] 03-01-PLAN.md — doctor command: local config validation (Bun version, auth-mode aware env vars, private key permissions, output dir writability) (DIAG-01)
+- [x] 03-01-PLAN.md — doctor command: local config validation (Bun version, auth-mode aware env vars, private key permissions, output dir writability) (DIAG-01)
 - [ ] 03-02-PLAN.md — Documentation: README rewrite, .env.example comments, SECURITY.md (DOC-01, DOC-02, DOC-03)
 
 ## Progress
