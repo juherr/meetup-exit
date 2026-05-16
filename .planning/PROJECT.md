@@ -24,13 +24,14 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 - ✓ Photos export — featuredEventPhoto URL extraction, CSV photos output, event_id/photo_id/base_url (Validated in Phase 2)
 - ✓ Resume — `--resume` flag, per-entity-type index at `.meetup-exit/index.json`, re-derives CSV via runConvert (Validated in Phase 2)
 - ✓ Error records — `raw/errors.jsonl` + `reports/errors.md`, export continues on entity failure (Validated in Phase 2)
+- ✓ `doctor` command — auth-mode-aware local config validator: Bun version, env vars, key permissions (600), output dir writability (Validated in Phase 3)
+- ✓ README — full setup guide: OAuth Client, JWT bearer flow, all 6 commands, full export example, all four privacy modes (Validated in Phase 3)
+- ✓ `.env.example` — all 9 `MEETUP_*` variables with English inline comments (Validated in Phase 3)
+- ✓ Security guide — SECURITY.md covering ephemeral salt, private key, token handling, full-export PII sensitivity, gitignore config (Validated in Phase 3)
 
 ### Active
 
-- [ ] `doctor` command — check Bun version, env vars, key permissions, output writability
-- [ ] README — setup OAuth Client, JWT bearer flow, full export examples, privacy modes
-- [ ] `.env.example` — all MEETUP\_\* variables with English comments
-- [ ] Security guide — tokens, private key, full exports, gitignore
+(None — all v1.0 requirements shipped)
 
 ### Out of Scope
 
@@ -41,12 +42,13 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 
 ## Context
 
+- **v1.0 shipped:** 2026-05-16 — full MVP complete (3 phases, 6 plans, ~3,000 LOC TypeScript)
 - Stack: Bun runtime (TypeScript natively), Vite+ toolchain (oxlint + oxfmt + tsc), vitest, tsdown/Rolldown build
-- GraphQL: `graphql-request` + GraphQL Code Generator (only `self.graphql` query currently generated; other queries are hand-written functions)
+- GraphQL: `graphql-request` + GraphQL Code Generator (only `self.graphql` query generated; other queries are TypeScript functions in `src/meetup/functions/`)
 - Auth: `jose` for RS256 JWT; OAuth 2 JWT Bearer is the primary production flow
 - Rate limiting: `bottleneck` at 450 req/min, 2 concurrent, minTime 250ms
-- Codegen: `bun run codegen` regenerates from `schema/introspection.json` — only the `self` query is in `.graphql` form; other queries are TypeScript functions in `src/meetup/functions/`
-- The `export` command is the main command; `convert` will reuse archive writers from `src/archive/`
+- Known: CSV rows buffered in memory before write — scaling risk for 100k+ RSVPs; acceptable for current scope
+- Known: Pseudonymization salt not persisted between runs — documented in SECURITY.md (ephemeral by design)
 
 ## Constraints
 
@@ -61,10 +63,16 @@ A Meetup Pro admin can run one command and get a complete, reproducible archive 
 | Decision                                                    | Rationale                                                                      | Outcome                                |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
 | Six strict modules with no cross-boundary leakage           | Testability and separation of concerns                                         | ✓ Good — already validated in codebase |
-| Bottleneck reservoir at 450/min (not 500)                   | Safety margin below Meetup's 500-point limit                                   | — Pending validation                   |
-| Raw JSONL as source of truth                                | Allows re-processing without re-fetching API (convert command depends on this) | ✓ Good                                 |
-| Refresh tokens are single-use — persist after every refresh | Meetup API behavior                                                            | ✓ Good                                 |
+| Bottleneck reservoir at 450/min (not 500)                                       | Safety margin below Meetup's 500-point limit                                        | — Pending real-traffic validation           |
+| Raw JSONL as source of truth                                                    | Allows re-processing without re-fetching API (convert command depends on this)      | ✓ Good                                      |
+| Refresh tokens are single-use — persist after every refresh                    | Meetup API behavior                                                                 | ✓ Good                                      |
+| Resume index at `<outDir>/.meetup-exit/index.json` (per-export scope)          | Isolates resume state to the export directory; no global state                      | ✓ Good                                      |
+| Entity-type granularity for resume checkpointing (not per-event)               | Minimal sufficient checkpoint — avoids per-entity overhead                          | ✓ Good                                      |
+| `doctor` prints `set`/`missing` only — never env var values                    | Prevent secret leakage in terminal captures (threat model)                          | ✓ Good                                      |
+| SECURITY.md lead section: ephemeral pseudonymization salt warning               | Highest severity issue for users; must appear first                                 | ✓ Good                                      |
+| README OAuth section: config-value focused, no portal nav steps                 | Portal UI can change; required config values are stable                             | ✓ Good                                      |
+| `readFile` from `node:fs/promises` instead of `Bun.file()` in resume-index.ts | `Bun.file()` unavailable in vitest environment; node:fs/promises works in both      | ✓ Good — discovered during Phase 2 testing  |
 
 ---
 
-_Last updated: 2026-05-16 — Phase 3 complete (doctor command, README rewrite, SECURITY.md)_
+_Last updated: 2026-05-16 after v1.0 milestone_
