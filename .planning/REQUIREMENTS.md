@@ -29,9 +29,9 @@ Requirements pour compléter le MVP. Le core (auth, GraphQL client, export, arch
 
 ### Documentation
 
-- [ ] **DOC-01**: README couvre le setup complet — création OAuth Client, configuration JWT bearer, exemple d'export complet, description des privacy modes
-- [ ] **DOC-02**: `.env.example` liste toutes les variables MEETUP\_\* avec commentaires en anglais
-- [ ] **DOC-03**: Security guide documente la gestion des tokens, private key, exports full, et configuration gitignore
+- [x] **DOC-01**: README couvre le setup complet — création OAuth Client, configuration JWT bearer, exemple d'export complet, description des privacy modes
+- [x] **DOC-02**: `.env.example` liste toutes les variables MEETUP\_\* avec commentaires en anglais
+- [x] **DOC-03**: Security guide documente la gestion des tokens, private key, exports full, et configuration gitignore
 
 ## v2 Requirements
 
@@ -65,9 +65,9 @@ Reporté après le MVP.
 | RESM-01     | Phase 2 | Complete |
 | ERR-01      | Phase 2 | Complete |
 | DIAG-01     | Phase 3 | Complete |
-| DOC-01      | Phase 3 | Pending  |
-| DOC-02      | Phase 3 | Pending  |
-| DOC-03      | Phase 3 | Pending  |
+| DOC-01      | Phase 3 | Complete |
+| DOC-02      | Phase 3 | Complete |
+| DOC-03      | Phase 3 | Complete |
 
 **Coverage:**
 

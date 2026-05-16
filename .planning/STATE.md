@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-ops-and-docs-03-01-PLAN.md
-last_updated: "2026-05-16T10:54:20.215Z"
+status: verifying
+stopped_at: Completed 03-ops-and-docs-03-02-PLAN.md
+last_updated: "2026-05-16T10:58:48.517Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
-  percent: 67
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-08)
 
 Phase: 03 (ops-and-docs) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-05-16
 
 Progress: [██░░░░░░░░] 33%
@@ -57,6 +57,7 @@ _Updated after each plan completion_
 | Phase 02-export-resilience P02-02 | 2min | 2 tasks | 4 files |
 | Phase 02-export-resilience P02-03 | 10min | 3 tasks | 4 files |
 | Phase 03-ops-and-docs P03-01 | 2min | 2 tasks | 2 files |
+| Phase 03-ops-and-docs P03-02 | 2min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 02-export-resilience]: 02-03: Missing/corrupt index returns empty fallback — --resume with no index = fresh export (D-08)
 - [Phase 03-ops-and-docs]: 03-01: doctor prints 'set'/'missing' only — never env var values — to prevent secret leakage in terminal captures
 - [Phase 03-ops-and-docs]: 03-01: Private key check uses fs.stat mode bits only (not readFile); output dir check uses fs.access(W_OK) not file creation
+- [Phase 03-ops-and-docs]: 03-02: README OAuth section is config-value focused only — no portal navigation steps (D-07)
+- [Phase 03-ops-and-docs]: 03-02: SECURITY.md lead section is ephemeral pseudonymization salt warning — ordered by severity (D-11)
+- [Phase 03-ops-and-docs]: 03-02: All four privacy modes documented in README with pseudonymized cross-run stability caveat pointing to SECURITY.md
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-16T10:54:20.212Z
-Stopped at: Completed 03-ops-and-docs-03-01-PLAN.md
+Last session: 2026-05-16T10:58:48.514Z
+Stopped at: Completed 03-ops-and-docs-03-02-PLAN.md
 Resume file: None
