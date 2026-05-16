@@ -21,6 +21,7 @@ type ExportOpts = AuthOpts & {
   privacyMode: string;
   pseudonymizationSalt?: string;
   dryRun?: true;
+  resume?: true;
   endpoint: string;
   jsonLogs?: true;
 };
@@ -59,6 +60,7 @@ export const exportCommand = addAuthOptions(
     process.env["MEETUP_PSEUDONYMIZATION_SALT"],
   )
   .option("--dry-run", "fetch data without writing any files")
+  .option("--resume", "resume a partial export using <out-dir>/.meetup-exit/index.json")
   .option("--endpoint <url>", "GraphQL endpoint", process.env["MEETUP_ENDPOINT"] ?? MEETUP_ENDPOINT)
   .option("--json-logs", "output logs as JSON")
   .action(async (opts: ExportOpts) => {
@@ -103,6 +105,7 @@ export const exportCommand = addAuthOptions(
             ? { pseudonymizationSalt: opts.pseudonymizationSalt }
             : {}),
           dryRun: opts.dryRun === true,
+          resume: opts.resume === true,
           endpoint: opts.endpoint,
           authMode: opts.auth,
           toolVersion: "0.1.0",
