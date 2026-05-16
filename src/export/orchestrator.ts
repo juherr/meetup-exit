@@ -11,6 +11,9 @@ import { listEvents } from "../meetup/functions/list-events.ts";
 import { listEventRsvps } from "../meetup/functions/list-event-rsvps.ts";
 import { listEventRegistrationAnswers } from "../meetup/functions/list-event-registration-answers.ts";
 import { JsonlWriter } from "../archive/jsonl-writer.ts";
+import { loadResumeIndex, saveResumeIndex, markEntityTypeComplete } from "./resume-index.ts";
+import type { ResumeIndex } from "./resume-index.ts";
+import { runConvert } from "./convert.ts";
 import {
   writeGroupsCsv,
   writeEventsCsv,
@@ -58,6 +61,7 @@ export type ExportOptions = {
   privacyMode: PrivacyMode;
   pseudonymizationSalt?: string;
   dryRun: boolean;
+  resume: boolean;
   endpoint: string;
   authMode: string;
   toolVersion: string;
@@ -106,6 +110,11 @@ export async function runExport(
     ]);
   }
 
+  let resumeIndex: ResumeIndex = await loadResumeIndex(options.outDir, startedAt);
+  if (!options.resume) {
+    resumeIndex = { version: 1, exportedAt: startedAt, completedEntityTypes: [] };
+  }
+
   const groupCsvRows: GroupCsvRow[] = [];
   const eventCsvRows: EventCsvRow[] = [];
   const photoCsvRows: PhotoCsvRow[] = [];
@@ -124,7 +133,7 @@ export async function runExport(
   const errorsWriter = new JsonlWriter(join(options.outDir, "raw/errors.jsonl"));
 
   try {
-    if (options.includeGroups) {
+    if (options.includeGroups && !resumeIndex.completedEntityTypes.includes("groups")) {
       logger.info("fetching groups...");
       const groups = await listGroups(client, options.network, { pageSize: options.pageSize });
       for (const group of groups) {
@@ -146,9 +155,13 @@ export async function runExport(
         counts.groups++;
       }
       logger.info(`fetched ${counts.groups} groups`);
+      if (!options.dryRun) {
+        resumeIndex = markEntityTypeComplete(resumeIndex, "groups");
+        await saveResumeIndex(options.outDir, resumeIndex);
+      }
     }
 
-    if (options.includeEvents) {
+    if (options.includeEvents && !resumeIndex.completedEntityTypes.includes("events")) {
       const eventMap = new Map<string, { id: string; title: string }>();
 
       for (const status of options.eventStatuses) {
@@ -248,8 +261,16 @@ export async function runExport(
           errorRecords.push({ entityType: "event-details", sourceId, timestamp, message });
         }
       }
+      if (!options.dryRun) {
+        resumeIndex = markEntityTypeComplete(resumeIndex, "events");
+        await saveResumeIndex(options.outDir, resumeIndex);
+      }
 
-      if (options.includeRsvps && options.privacyMode !== "public-archive") {
+      if (
+        options.includeRsvps &&
+        options.privacyMode !== "public-archive" &&
+        !resumeIndex.completedEntityTypes.includes("rsvps")
+      ) {
         for (const eventId of eventDetailsMap.keys()) {
           try {
             const rsvps = await listEventRsvps(client, eventId, { pageSize: options.pageSize });
@@ -320,9 +341,17 @@ export async function runExport(
           }
         }
         logger.info(`fetched ${counts.rsvps} RSVPs`);
+        if (!options.dryRun) {
+          resumeIndex = markEntityTypeComplete(resumeIndex, "rsvps");
+          await saveResumeIndex(options.outDir, resumeIndex);
+        }
       }
 
-      if (options.includeRegistrationAnswers && options.privacyMode !== "public-archive") {
+      if (
+        options.includeRegistrationAnswers &&
+        options.privacyMode !== "public-archive" &&
+        !resumeIndex.completedEntityTypes.includes("registration-answers")
+      ) {
         for (const eventId of eventDetailsMap.keys()) {
           try {
             const answers = await listEventRegistrationAnswers(client, options.network, eventId, {
@@ -374,25 +403,46 @@ export async function runExport(
           }
         }
         logger.info(`fetched ${counts.registrationAnswers} registration answer entries`);
+        if (!options.dryRun) {
+          resumeIndex = markEntityTypeComplete(resumeIndex, "registration-answers");
+          await saveResumeIndex(options.outDir, resumeIndex);
+        }
       }
     }
 
     if (!options.dryRun) {
-      if (groupCsvRows.length > 0)
-        await writeGroupsCsv(join(options.outDir, "csv/groups.csv"), groupCsvRows);
-      if (eventCsvRows.length > 0)
-        await writeEventsCsv(join(options.outDir, "csv/events.csv"), eventCsvRows);
-      if (photoCsvRows.length > 0)
-        await writePhotosCsv(join(options.outDir, "csv/photos.csv"), photoCsvRows);
-      if (rsvpCsvRows.length > 0)
-        await writeRsvpsCsv(join(options.outDir, "csv/rsvps.csv"), rsvpCsvRows);
-      if (attendeeCsvRows.length > 0)
-        await writeAttendeesCsv(join(options.outDir, "csv/attendees.csv"), attendeeCsvRows);
-      if (answerCsvRows.length > 0)
-        await writeRegistrationAnswersCsv(
-          join(options.outDir, "csv/registration-answers.csv"),
-          answerCsvRows,
+      if (options.resume) {
+        // On resume: re-derive ALL CSVs from the complete JSONL via runConvert (D-06)
+        // This guarantees no duplicate rows and includes data from previously-completed stages.
+        await runConvert(
+          {
+            inputDir: options.outDir,
+            outDir: options.outDir,
+            includeMarkdown: options.includeMarkdown,
+            privacyMode: options.privacyMode,
+            ...(effectiveSalt !== undefined ? { pseudonymizationSalt: effectiveSalt } : {}),
+            dryRun: false,
+          },
+          logger,
         );
+      } else {
+        // On fresh run: write CSVs from in-memory row arrays (authoritative for this run)
+        if (groupCsvRows.length > 0)
+          await writeGroupsCsv(join(options.outDir, "csv/groups.csv"), groupCsvRows);
+        if (eventCsvRows.length > 0)
+          await writeEventsCsv(join(options.outDir, "csv/events.csv"), eventCsvRows);
+        if (photoCsvRows.length > 0)
+          await writePhotosCsv(join(options.outDir, "csv/photos.csv"), photoCsvRows);
+        if (rsvpCsvRows.length > 0)
+          await writeRsvpsCsv(join(options.outDir, "csv/rsvps.csv"), rsvpCsvRows);
+        if (attendeeCsvRows.length > 0)
+          await writeAttendeesCsv(join(options.outDir, "csv/attendees.csv"), attendeeCsvRows);
+        if (answerCsvRows.length > 0)
+          await writeRegistrationAnswersCsv(
+            join(options.outDir, "csv/registration-answers.csv"),
+            answerCsvRows,
+          );
+      }
 
       await writeChecksums(options.outDir);
 
@@ -435,6 +485,10 @@ export async function runExport(
       ]);
       await writeErrorsReport(options.outDir, errorRecords);
     } else {
+      if (options.resume)
+        logger.info(
+          "[dry-run] --resume: would load .meetup-exit/index.json; would skip already-completed entity types; would re-derive all CSVs via convert at end",
+        );
       logger.info(`[dry-run] would write ${groupCsvRows.length} group rows`);
       logger.info(`[dry-run] would write ${eventCsvRows.length} event rows`);
       logger.info(`[dry-run] would write ${photoCsvRows.length} photo rows`);
