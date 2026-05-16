@@ -59,7 +59,12 @@ Plans:
 2. The README covers OAuth Client creation, JWT bearer configuration, a complete export example, and all privacy modes — a new user can go from zero to first export following it alone
 3. `.env.example` lists every `MEETUP_*` variable with an English inline comment explaining its purpose and expected format
 4. The security guide documents token handling, private key storage, full-export sensitivity, and the gitignore configuration required to avoid committing secrets
-   **Plans**: TBD
+   **Plans**: 2 plans
+
+Plans:
+
+- [ ] 03-01-PLAN.md — doctor command: local config validation (Bun version, auth-mode aware env vars, private key permissions, output dir writability) (DIAG-01)
+- [ ] 03-02-PLAN.md — Documentation: README rewrite, .env.example comments, SECURITY.md (DOC-01, DOC-02, DOC-03)
 
 ## Progress
 
@@ -67,4 +72,4 @@ Plans:
 | -------------------- | -------------- | ----------- | ---------- |
 | 1. Convert Command   | 1/1            | Complete    | 2026-05-08 |
 | 2. Export Resilience | 0/3            | Not started | -          |
-| 3. Ops and Docs      | 0/?            | Not started | -          |
+| 3. Ops and Docs      | 0/2            | Not started | -          |
